@@ -1,13 +1,21 @@
 version: "3"
 services:
-  rails:
-    image: rooms
+  server:
+    build: ./
     command: sh -c "bundle && rails s"
     ports:
     - 3000:3000
     volumes:
     - bundle:/usr/local/bundle
-    - .:/app
+    - ./:/app
+  client:
+    build: ./client
+    command: sh -c "yarn && yarn run start"
+    volumes:
+    - node_modules:/app/node_modules
+    - ./client:/app
 volumes:
   bundle:
+    driver: local
+  node_modules:
     driver: local
