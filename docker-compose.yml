@@ -1,0 +1,13 @@
+version: "3"
+services:
+  rails:
+    image: rooms
+    command: sh -c "bundle && rails s"
+    ports:
+    - 3000:3000
+    volumes:
+    - bundle:/usr/local/bundle
+    - .:/app
+volumes:
+  bundle:
+    driver: local
