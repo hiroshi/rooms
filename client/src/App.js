@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ActionCable from 'actioncable'
 import logo from './logo.svg'
 import './App.css'
 
@@ -15,6 +16,15 @@ class App extends Component {
       })
       .catch((err) => {
         this.setState({health: err.message})
+      })
+
+    this.cable = ActionCable.createConsumer()
+    this.cable.subscriptions.create(
+      'ChatChannel',
+      {
+        connected: (data) => {
+          console.log(data)
+        }
       })
   }
 
