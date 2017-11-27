@@ -19,13 +19,17 @@ class App extends Component {
       })
 
     this.cable = ActionCable.createConsumer()
-    this.cable.subscriptions.create(
+    this.subscription = this.cable.subscriptions.create(
       'ChatChannel',
       {
         connected: (data) => {
           console.log(data)
         }
       })
+  }
+
+  push = () => {
+    this.subscription.perform('hoge', {fuga: this.input.value})
   }
 
   render () {
@@ -39,6 +43,10 @@ class App extends Component {
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
         <p>health: { this.state.health }</p>
+        <div>
+          <input type='text' ref={(x) => {this.input = x}} />
+          <button onClick={this.push}>push</button>
+        </div>
       </div>
     )
   }

@@ -8,4 +8,8 @@ class ChatChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
     logger.info "unsubscribed"
   end
+
+  def hoge(data)
+    logger.info "hoge: #{data}"
+  end
 end
