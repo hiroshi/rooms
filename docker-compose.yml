@@ -8,6 +8,8 @@ services:
     volumes:
     - bundle:/usr/local/bundle
     - ./:/app
+    tmpfs:
+    - /app/tmp/pids
   client:
     build: ./client
     command: sh -c "yarn && yarn run start"
