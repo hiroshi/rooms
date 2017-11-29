@@ -22,8 +22,14 @@ services:
     - ./client:/app
     depends_on:
     - server
+  postgres:
+    image: postgres:10.1
+    volumes:
+    - pgdata:/var/lib/postgresql/data
 volumes:
   bundle:
     driver: local
   node_modules:
+    driver: local
+  pgdata:
     driver: local

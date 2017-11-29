@@ -4,4 +4,7 @@
 open http://localhost:3001/
 
 
-`docker-compose exec server rails g`
+```
+docker-compose exec server rails db:create db:migrate
+```
+
