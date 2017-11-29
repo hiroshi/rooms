@@ -6,7 +6,7 @@ import './App.css'
 class App extends Component {
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = {messages:[]}
     fetch('/health')
       .then((res) => {
         return res.text()
@@ -20,13 +20,15 @@ class App extends Component {
 
     this.cable = ActionCable.createConsumer()
     this.subscription = this.cable.subscriptions.create(
-      'ChatChannel',
+      'MessageChannel',
       {
         connected: (data) => {
           console.log('connected: ' + data)
         },
-        received: (data) => {
-          console.log('received:', data)
+        received: (message) => {
+          console.log('received:', message)
+          this.state.messages.push(message)
+          this.setState({messages: this.state.messages})
         }
       })
   }
@@ -50,6 +52,13 @@ class App extends Component {
           <input type='text' ref={(x) => {this.input = x}} />
           <button onClick={this.push}>push</button>
         </div>
+        <ul>
+          {
+            this.state.messages.map((message) => {
+              return <li key={message.id}>{message.content}</li>
+            })
+          }
+        </ul>
       </div>
     )
   }
