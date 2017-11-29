@@ -1,6 +1,6 @@
 class ChatChannel < ApplicationCable::Channel
   def subscribed
-    # stream_from "some_channel"
+    stream_from "hoge"
     logger.info "subscribed"
   end
 
@@ -9,7 +9,8 @@ class ChatChannel < ApplicationCable::Channel
     logger.info "unsubscribed"
   end
 
-  def hoge(data)
-    logger.info "hoge: #{data}"
+  def push(data)
+    logger.info "push: #{data}"
+    ActionCable.server.broadcast('hoge', data)
   end
 end

@@ -23,13 +23,16 @@ class App extends Component {
       'ChatChannel',
       {
         connected: (data) => {
-          console.log(data)
+          console.log('connected: ' + data)
+        },
+        received: (data) => {
+          console.log('received:', data)
         }
       })
   }
 
   push = () => {
-    this.subscription.perform('hoge', {fuga: this.input.value})
+    this.subscription.perform('push', {content: this.input.value})
   }
 
   render () {
