@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ActionCable from 'actioncable'
 import logo from './logo.svg'
-import './App.css'
+// import './App.css'
 
 class Messages extends Component {
   constructor (props) {
@@ -26,18 +26,24 @@ class Messages extends Component {
 
   render () {
     return (
-      <div>
+      <div className='tile is-child box'>
         <div>
           <input type='text' ref={(x) => {this.input = x}} />
           <button onClick={this.push}>push</button>
         </div>
-        <ul>
+        <div>
           {
             this.state.messages.map((message) => {
-              return <li key={message.id}>{message.content}</li>
+              return (
+                <div key={message.id} className='card'>
+                  <div className='card-content'>
+                    {message.content}
+                  </div>
+                </div>
+              )
             })
           }
-        </ul>
+        </div>
       </div>
     )
   }
@@ -64,16 +70,13 @@ class App extends Component {
 
   render () {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+      <div>
         <p>health: { this.state.health }</p>
-        <Messages cable={this.cable} />
+        <div className='tile is-ancestor'>
+          <div className='tile is-4 is-vertical is-parent'>
+            <Messages cable={this.cable} />
+          </div>
+        </div>
       </div>
     )
   }
