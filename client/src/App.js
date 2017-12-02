@@ -27,9 +27,13 @@ class Messages extends Component {
   render () {
     return (
       <div className='tile is-child box'>
-        <div>
-          <input type='text' ref={(x) => {this.input = x}} />
-          <button onClick={this.push}>push</button>
+        <div className='field has-addons'>
+          <div className='control is-expanded'>
+            <input type='text' ref={(x) => {this.input = x} } className='input' />
+          </div>
+          <div className='control'>
+            <button onClick={this.push} className='button is-primary'>push</button>
+          </div>
         </div>
         <div>
           {
@@ -73,6 +77,9 @@ class App extends Component {
       <div>
         <p>health: { this.state.health }</p>
         <div className='tile is-ancestor'>
+          <div className='tile is-4 is-vertical is-parent'>
+            <Messages cable={this.cable} />
+          </div>
           <div className='tile is-4 is-vertical is-parent'>
             <Messages cable={this.cable} />
           </div>
