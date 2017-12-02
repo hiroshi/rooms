@@ -3,10 +3,51 @@ import ActionCable from 'actioncable'
 import logo from './logo.svg'
 import './App.css'
 
+class Messages extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {messages: []}
+    this.subscription = this.props.cable.subscriptions.create(
+      'MessageChannel',
+      {
+        connected: (data) => {
+          console.log('connected: ' + data)
+        },
+        received: (messages) => {
+          // console.log('received:', messages)
+          this.setState({messages: messages})
+        }
+      })
+  }
+
+  push = () => {
+    this.subscription.perform('push', {content: this.input.value})
+  }
+
+  render () {
+    return (
+      <div>
+        <div>
+          <input type='text' ref={(x) => {this.input = x}} />
+          <button onClick={this.push}>push</button>
+        </div>
+        <ul>
+          {
+            this.state.messages.map((message) => {
+              return <li key={message.id}>{message.content}</li>
+            })
+          }
+        </ul>
+      </div>
+    )
+  }
+}
+
+
 class App extends Component {
   constructor (props) {
     super(props)
-    this.state = {messages:[]}
+    this.state = {}
     fetch('/health')
       .then((res) => {
         return res.text()
@@ -19,22 +60,6 @@ class App extends Component {
       })
 
     this.cable = ActionCable.createConsumer()
-    this.subscription = this.cable.subscriptions.create(
-      'MessageChannel',
-      {
-        connected: (data) => {
-          console.log('connected: ' + data)
-        },
-        received: (message) => {
-          console.log('received:', message)
-          this.state.messages.push(message)
-          this.setState({messages: this.state.messages})
-        }
-      })
-  }
-
-  push = () => {
-    this.subscription.perform('push', {content: this.input.value})
   }
 
   render () {
@@ -48,17 +73,7 @@ class App extends Component {
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
         <p>health: { this.state.health }</p>
-        <div>
-          <input type='text' ref={(x) => {this.input = x}} />
-          <button onClick={this.push}>push</button>
-        </div>
-        <ul>
-          {
-            this.state.messages.map((message) => {
-              return <li key={message.id}>{message.content}</li>
-            })
-          }
-        </ul>
+        <Messages cable={this.cable} />
       </div>
     )
   }
