@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import ActionCable from 'actioncable'
 import logo from './logo.svg'
-// import './App.css'
+import './App.css'
 
 class Messages extends Component {
   constructor (props) {
@@ -41,7 +41,10 @@ class Messages extends Component {
               return (
                 <div key={message.id} className='card'>
                   <div className='card-content'>
-                    {message.content}
+                    <p>{message.content}</p>
+                    <div className='tags'>
+                      <span className='tag'>done</span>
+                    </div>
                   </div>
                 </div>
               )
@@ -77,9 +80,6 @@ class App extends Component {
       <div>
         <p>health: { this.state.health }</p>
         <div className='tile is-ancestor'>
-          <div className='tile is-4 is-vertical is-parent'>
-            <Messages cable={this.cable} />
-          </div>
           <div className='tile is-4 is-vertical is-parent'>
             <Messages cable={this.cable} />
           </div>
