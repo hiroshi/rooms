@@ -1,7 +1,36 @@
 import React, { Component } from 'react'
 import ActionCable from 'actioncable'
-// import logo from './logo.svg'
 import './App.css'
+
+class InputButton extends Component {
+  handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      this.push()
+    }
+  }
+
+  push = () => {
+    this.props.action(this.input.value)
+  }
+
+  render () {
+    return (
+      <div className='field has-addons'>
+        <div className='control is-expanded'>
+          <input
+            type='text'
+            placeholder={this.props.placeholder}
+            ref={x => this.input = x}
+            onKeyPress={this.handleKeyPress}
+            className='input' />
+        </div>
+        <div className='control'>
+          <button onClick={this.push} className='button is-primary'>{this.props.buttonText}</button>
+        </div>
+      </div>
+    )
+  }
+}
 
 class MessageEdit extends Component {
   constructor (props) {
@@ -20,7 +49,7 @@ class MessageEdit extends Component {
     let message = this.props.message
     return (
       <div key={message.id} className='card'>
-        <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x} />
+        <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
         <button className='button is-primary' onClick={this.save}>Save</button>
       </div>
     )
@@ -37,28 +66,31 @@ class Messages extends Component {
         connected: (data) => {
           console.log('connected: ' + data)
         },
-        received: (messages) => {
-          // console.log('received:', messages)
-          this.setState({messages: messages})
+        received: (info) => {
+          if (info.refresh) {
+            this.subscription.perform('query', {query: this.state.query})
+          }
+          if (info.messages) {
+            this.setState({messages: info.messages})
+          }
         }
       })
   }
 
-  push = () => {
-    this.subscription.perform('push', {content: this.input.value})
+  query = (value) => {
+    this.setState({query: value})
+    this.subscription.perform('query', {query: value})
+  }
+
+  push = (value) => {
+    this.subscription.perform('push', {content: value})
   }
 
   render () {
     return (
       <div className='tile is-child box'>
-        <div className='field has-addons'>
-          <div className='control is-expanded'>
-            <input type='text' ref={x => this.input = x} className='input' />
-          </div>
-          <div className='control'>
-            <button onClick={this.push} className='button is-primary'>push</button>
-          </div>
-        </div>
+        <InputButton buttonText='query' action={this.query} />
+        <InputButton buttonText='new' action={this.push} />
         <div>
           {
             this.state.messages.map((message) => {
@@ -67,7 +99,11 @@ class Messages extends Component {
                   <div className='card-content'>
                     <p>{message.content}</p>
                     <div className='tags'>
-                      <span className='tag'>done</span>
+                      {
+                        message.meta.tags && message.meta.tags.map((tag) => {
+                          return <span key={tag} className='tag'>{tag}</span>
+                        })
+                      }
                     </div>
                   </div>
                 </div>

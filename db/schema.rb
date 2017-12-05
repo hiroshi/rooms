@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 20171127125146) do
 
   create_table "messages", force: :cascade do |t|
     t.text "content"
+    t.jsonb "meta", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
