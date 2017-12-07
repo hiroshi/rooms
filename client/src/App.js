@@ -101,7 +101,7 @@ class Messages extends Component {
                     <div className='tags'>
                       {
                         message.meta.tags && message.meta.tags.map((tag) => {
-                          return <span key={tag} className='tag'>{tag}</span>
+                          return <span key={tag} className='tag is-info'>{tag}</span>
                         })
                       }
                     </div>
