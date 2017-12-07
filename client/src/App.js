@@ -11,6 +11,9 @@ class InputButton extends Component {
 
   push = () => {
     this.props.action(this.input.value)
+    if (this.props.clearAfterAction) {
+      this.input.value = ''
+    }
   }
 
   render () {
@@ -90,7 +93,7 @@ class Messages extends Component {
     return (
       <div className='tile is-child box'>
         <InputButton buttonText='query' placeholder='!done #todo' action={this.query} />
-        <InputButton buttonText='new' action={this.push} />
+        <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
         <div>
           {
             this.state.messages.map((message) => {
