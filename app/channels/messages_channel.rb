@@ -11,7 +11,7 @@ class MessagesChannel < ApplicationCable::Channel
 
   def query(data)
     criteria = Message.all
-    if data
+    if data && data['query']
       criteria = criteria.tags(*data['query'].scan(/\#(\w+)/).map {|tag, _| tag })
       criteria = criteria.no_tags(*data['query'].scan(/\!(\w+)/).map {|tag, _| tag })
     end
