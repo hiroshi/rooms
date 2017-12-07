@@ -89,7 +89,7 @@ class Messages extends Component {
   render () {
     return (
       <div className='tile is-child box'>
-        <InputButton buttonText='query' action={this.query} />
+        <InputButton buttonText='query' placeholder='!done #todo' action={this.query} />
         <InputButton buttonText='new' action={this.push} />
         <div>
           {
