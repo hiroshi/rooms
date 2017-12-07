@@ -1,14 +1,12 @@
 class Message < ApplicationRecord
   before_save do
+    tags = []
     if content
-      tags = []
       content.scan(/#(\w+)/) do |tag, _|
         tags << tag
       end
     end
-    if tags.present?
-      meta[:tags] = tags
-    end
+    meta[:tags] = tags
   end
 
   scope :tags, -> (*tags) {
