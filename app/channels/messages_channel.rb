@@ -1,6 +1,8 @@
 class MessagesChannel < ApplicationCable::Channel
   def subscribed
-    stream_from "messages"
+    stream_from 'messages'
+    @broadcasting = "messages/" + SecureRandom.uuid
+    stream_from @broadcasting
     query(nil)
   end
 
@@ -15,7 +17,7 @@ class MessagesChannel < ApplicationCable::Channel
       criteria = criteria.tags(*data['query'].scan(/\#(\w+)/).map {|tag, _| tag })
       criteria = criteria.no_tags(*data['query'].scan(/\!(\w+)/).map {|tag, _| tag })
     end
-    ActionCable.server.broadcast('messages', messages: criteria.order(created_at: :desc).limit(10))
+    ActionCable.server.broadcast(@broadcasting, messages: criteria.order(created_at: :desc).limit(10))
   end
 
   def push(data)
