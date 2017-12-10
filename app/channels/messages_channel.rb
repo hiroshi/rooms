@@ -3,7 +3,7 @@ class MessagesChannel < ApplicationCable::Channel
     stream_from 'messages'
     @broadcasting = "messages/" + SecureRandom.uuid
     stream_from @broadcasting
-    query(nil)
+    query(params)
   end
 
   def unsubscribed

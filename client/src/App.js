@@ -1,8 +1,18 @@
 import React, { Component } from 'react'
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import ActionCable from 'actioncable'
 import './App.css'
 
 class InputButton extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {value: props.value}
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({value: nextProps.value})
+  }
+
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       this.push()
@@ -16,15 +26,21 @@ class InputButton extends Component {
     }
   }
 
+  onChange = (e) => {
+    this.setState({value: e.target.value})
+  }
+
   render () {
     return (
       <div className='field has-addons'>
         <div className='control is-expanded'>
           <input
             type='text'
+            value={this.state.value}
             placeholder={this.props.placeholder}
             ref={x => this.input = x}
             onKeyPress={this.handleKeyPress}
+            onChange={this.onChange}
             className='input' />
         </div>
         <div className='control'>
@@ -62,12 +78,14 @@ class MessageEdit extends Component {
 class Messages extends Component {
   constructor (props) {
     super(props)
-    this.state = {messages: []}
+    let query = props.location.hash.substring(1)
+    // console.log("initialQuery: " + query)
+    this.state = {messages: [], query: query}
     this.subscription = this.props.cable.subscriptions.create(
-      'MessagesChannel',
+      {channel: 'MessagesChannel', query: query},
       {
         connected: (data) => {
-          console.log('connected: ' + data)
+          // console.log('connected: ' + data)
         },
         received: (info) => {
           if (info.refresh) {
@@ -80,8 +98,29 @@ class Messages extends Component {
       })
   }
 
+  componentWillReceiveProps(nextProps) {
+    let nextQuery = nextProps.location.hash.substring(1)
+    // console.log("nextQuery; " + nextQuery)
+    if (this.state.query !== nextQuery) {
+      this.setState({query: nextQuery})
+      this.subscription.perform('query', {query: nextQuery})
+    }
+  }
+
+  // shouldComponentUpdate(nextProps, nextState) {
+    // let nextQuery = nextProps.location.hash.substring(1)
+    // if (nextQuery !== nextState.query) {
+    //   // this.query(nextQuery)
+    //   console.log(nextQuery)
+    //   this.setState({query: nextQuery})
+    //   this.subscription.perform('query', {query: nextQuery})
+    //   return true
+    // }
+  // }
+
   query = (value) => {
     this.setState({query: value})
+    this.props.history.push({hash: value})
     this.subscription.perform('query', {query: value})
   }
 
@@ -92,7 +131,7 @@ class Messages extends Component {
   render () {
     return (
       <div className='tile is-child box'>
-        <InputButton buttonText='query' placeholder='!done #todo' action={this.query} />
+        <InputButton buttonText='query' placeholder='!done todo' value={this.state.query} action={this.query} />
         <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
         <div>
           {
@@ -144,17 +183,21 @@ class App extends Component {
 
   render () {
     return (
-      <div>
-        <p>health: { this.state.health }</p>
-        <div className='tile is-ancestor'>
-          <div className='tile is-4 is-vertical is-parent'>
-            <Messages cable={this.cable} editMessage={this.editMessage} />
-          </div>
-          <div className='tile is-4 is-vertical is-parent'>
-            { this.state.message && <MessageEdit cable={this.cable} message={this.state.message} /> }
+      <Router>
+        <div>
+          <p>health: { this.state.health }</p>
+          <div className='tile is-ancestor'>
+            <div className='tile is-4 is-vertical is-parent'>
+              <Route path='/' render={props => {
+                  return <Messages {...props} cable={this.cable} editMessage={this.editMessage} />
+                }}/>
+            </div>
+            <div className='tile is-4 is-vertical is-parent'>
+              { this.state.message && <MessageEdit cable={this.cable} message={this.state.message} /> }
+            </div>
           </div>
         </div>
-      </div>
+      </Router>
     )
   }
 }
