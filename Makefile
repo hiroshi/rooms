@@ -2,4 +2,5 @@ IMAGE = rooms
 build:
 	docker build -t $(IMAGE) .
 
-# run:
+test:
+	docker-compose exec server bundle exec rspec -fdoc --order=defined
