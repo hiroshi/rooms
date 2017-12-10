@@ -1,6 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Message, type: :model do
+  describe 'tags' do
+    it do
+      message = Message.create!(content: '#日本語 #todo #hoge #fuga')
+      expect(message.meta['tags']).to match(array_including('日本語', 'todo'))
+    end
+  end
+
   describe 'scope :query' do
     describe 'query("todo")' do
       let(:subject) { Message.query('todo') }

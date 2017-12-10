@@ -2,7 +2,7 @@ class Message < ApplicationRecord
   before_save do
     tags = []
     if content
-      content.scan(/#(\w+)/) do |tag, _|
+      content.scan(/(?:\s|^)#(\S+)/) do |tag, _|
         tags << tag
       end
     end
@@ -20,9 +20,9 @@ class Message < ApplicationRecord
 
   scope :query, -> (query) {
     return all if query.blank?
-    ts = query.scan(/(?:\s|^)([^\!]\S+)(?:\s|$)/).map {|tag, _| tag }
+    ts = query.scan(/(?:\s|^)([^\!]\S+)/).map {|tag, _| tag }
     q = all.tags(*ts)
-    nts = query.scan(/(?:\s|^)\!(\S+)(?:\s|$)/).map {|tag, _| tag }
+    nts = query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag }
     q.no_tags(*nts)
   }
 end
