@@ -12,12 +12,8 @@ class MessagesChannel < ApplicationCable::Channel
   end
 
   def query(data)
-    criteria = Message.all
-    if data && data['query']
-      criteria = criteria.tags(*data['query'].scan(/\#(\w+)/).map {|tag, _| tag })
-      criteria = criteria.no_tags(*data['query'].scan(/\!(\w+)/).map {|tag, _| tag })
-    end
-    ActionCable.server.broadcast(@broadcasting, messages: criteria.order(created_at: :desc).limit(10))
+    messages = Message.query(data&.[]('query')).order(created_at: :desc).limit(10)
+    ActionCable.server.broadcast(@broadcasting, messages: messages)
   end
 
   def push(data)
