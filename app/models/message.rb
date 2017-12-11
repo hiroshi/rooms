@@ -15,7 +15,11 @@ class Message < ApplicationRecord
   }
   scope :no_tags, -> (*tags) {
     return all if tags.blank?
-    where('NOT (meta->\'tags\' @> ?) OR (meta->\'tags\' is NULL)', tags.to_json)
+    q = all
+    tags.each do |tag|
+      q = q.where.not('meta->\'tags\' @> ?', [tag].to_json)
+    end
+    q.or(where('meta->\'tags\' is NULL'))
   }
 
   scope :query, -> (query) {
