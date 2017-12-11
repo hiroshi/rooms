@@ -187,12 +187,12 @@ class App extends Component {
         <div>
           <p>health: { this.state.health }</p>
           <div className='tile is-ancestor'>
-            <div className='tile is-4 is-vertical is-parent'>
+            <div className='tile is-6 is-vertical is-parent'>
               <Route path='/' render={props => {
                   return <Messages {...props} cable={this.cable} editMessage={this.editMessage} />
                 }}/>
             </div>
-            <div className='tile is-4 is-vertical is-parent'>
+            <div className='tile is-6 is-vertical is-parent'>
               { this.state.message && <MessageEdit cable={this.cable} message={this.state.message} /> }
             </div>
           </div>
