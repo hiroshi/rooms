@@ -60,7 +60,7 @@ class MessageEdit extends Component {
   }
 
   save = () => {
-    console.log(this.textarea.value)
+    // console.log(this.textarea.value)
     this.subscription.perform('save', {id: this.props.message.id, content: this.textarea.value})
   }
 
@@ -78,7 +78,7 @@ class MessageEdit extends Component {
 class Messages extends Component {
   constructor (props) {
     super(props)
-    let query = props.location.hash.substring(1)
+    let query = decodeURI(props.location.search.substring(1))
     // console.log("initialQuery: " + query)
     this.state = {messages: [], query: query}
     this.subscription = this.props.cable.subscriptions.create(
@@ -99,7 +99,7 @@ class Messages extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let nextQuery = nextProps.location.hash.substring(1)
+    let nextQuery = decodeURI(nextProps.location.search.substring(1))
     // console.log("nextQuery; " + nextQuery)
     if (this.state.query !== nextQuery) {
       this.setState({query: nextQuery})
@@ -120,7 +120,8 @@ class Messages extends Component {
 
   query = (value) => {
     this.setState({query: value})
-    this.props.history.push({hash: value})
+    // console.log(value)
+    this.props.history.push({search: value})
     this.subscription.perform('query', {query: value})
   }
 
