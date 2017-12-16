@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+// import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ActionCable from 'actioncable'
 import './App.css'
 
@@ -78,8 +79,7 @@ class MessageEdit extends Component {
 class Messages extends Component {
   constructor (props) {
     super(props)
-    let query = decodeURI(props.location.search.substring(1))
-    // console.log("initialQuery: " + query)
+    let query = this.getQueryFromLocation(props.location)
     this.state = {messages: [], query: query}
     this.subscription = this.props.cable.subscriptions.create(
       {channel: 'MessagesChannel', query: query},
@@ -99,29 +99,22 @@ class Messages extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let nextQuery = decodeURI(nextProps.location.search.substring(1))
-    // console.log("nextQuery; " + nextQuery)
+    let nextQuery = this.getQueryFromLocation(nextProps.location)
     if (this.state.query !== nextQuery) {
       this.setState({query: nextQuery})
       this.subscription.perform('query', {query: nextQuery})
     }
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-    // let nextQuery = nextProps.location.hash.substring(1)
-    // if (nextQuery !== nextState.query) {
-    //   // this.query(nextQuery)
-    //   console.log(nextQuery)
-    //   this.setState({query: nextQuery})
-    //   this.subscription.perform('query', {query: nextQuery})
-    //   return true
-    // }
-  // }
+  getQueryFromLocation(location) {
+    let params = new URLSearchParams(location.search)
+    return params.get('q') || ''
+  }
 
   query = (value) => {
     this.setState({query: value})
-    // console.log(value)
-    this.props.history.push({search: value})
+    let params = new URLSearchParams({q: value})
+    this.props.history.push({search: params.toString()})
     this.subscription.perform('query', {query: value})
   }
 
