@@ -152,7 +152,6 @@ class Messages extends Component {
   }
 }
 
-
 class App extends Component {
   constructor (props) {
     super(props)
@@ -167,8 +166,20 @@ class App extends Component {
       .catch((err) => {
         this.setState({health: err.message})
       })
-
     this.cable = ActionCable.createConsumer()
+
+    this.subscription = this.cable.subscriptions.create(
+      {channel: 'CurrentUserChannel'},
+      {
+        connected: (data) => {
+          console.log("current_user connected: " + data)
+        },
+        received: (data) => {
+          console.log("current_user received: " + JSON.stringify(data))
+          this.setState({current_user_id: data.id})
+        }
+      }
+    )
   }
 
   editMessage = (message) => {
@@ -176,10 +187,14 @@ class App extends Component {
   }
 
   render () {
+    let user = this.state.current_user_id
+        ? <p>current_user: {this.state.current_user_id}</p>
+        : <p><a href='/auth/github'>login</a></p>
     return (
       <Router>
         <div>
           <p>health: { this.state.health }</p>
+          { user }
           <div className='tile is-ancestor'>
             <div className='tile is-6 is-vertical is-parent'>
               <Route path='/' render={props => {

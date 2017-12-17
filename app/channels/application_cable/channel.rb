@@ -1,10 +1,10 @@
 module ApplicationCable
   class Channel < ActionCable::Channel::Base
 
-    private
+    # private
 
-    def broadcast_messages
-      ActionCable.server.broadcast('messages', Message.order(created_at: :desc).limit(10).all)
-    end
+    # def broadcast_messages
+    #   ActionCable.server.broadcast('messages', Message.order(created_at: :desc).limit(10).all)
+    # end
   end
 end
