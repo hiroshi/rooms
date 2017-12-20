@@ -12,7 +12,7 @@ class MessagesChannel < ApplicationCable::Channel
   end
 
   def query(data)
-    messages = Message.query(data&.[]('query')).order(created_at: :desc).limit(10)
+    messages = Message.query(data&.dig('q')).order(created_at: :desc).limit(10)
     ActionCable.server.broadcast(@broadcasting, messages: messages)
   end
 

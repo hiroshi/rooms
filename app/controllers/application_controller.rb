@@ -10,7 +10,11 @@ class ApplicationController < ActionController::Base
       cred.create_user!
       cred.save!
     end
-    cookies.encrypted[:user_id] = cred.user.id
-    redirect_to '/'
+    user = cred.user
+    if user.rooms.blank?
+      user.rooms.create!(name: 'New Room')
+    end
+    cookies.encrypted[:user_id] = user.id
+    redirect_to "/?room=#{user.rooms.first.id}"
   end
 end
