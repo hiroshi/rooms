@@ -9,5 +9,7 @@ class CreateRooms < ActiveRecord::Migration[5.1]
       # t.index :assembly_id
       # t.index :part_id
     end
+
+    add_reference :messages, :room, foreign_key: true
   end
 end

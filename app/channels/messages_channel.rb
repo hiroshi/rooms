@@ -12,15 +12,18 @@ class MessagesChannel < ApplicationCable::Channel
   end
 
   def query(data)
-    messages = Message.query(data&.dig('q')).order(created_at: :desc).limit(10)
+    messages = room.messages.query(data['q']).order(created_at: :desc).limit(10)
     ActionCable.server.broadcast(@broadcasting, messages: messages)
   end
 
   def push(data)
-    # puts "params: #{params}"
-    # puts "data: #{data}"
-    # puts "last message: #{@message&.content}"
-    Message.create!(data.slice('content'))
+    room.messages.create!(data.slice('content'))
     ActionCable.server.broadcast('messages', refresh: true)
+  end
+
+  private
+
+  def room
+    Room.find(params['room'])
   end
 end

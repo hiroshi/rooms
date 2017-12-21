@@ -1,4 +1,6 @@
 class Message < ApplicationRecord
+  belongs_to :room
+
   before_save do
     tags = []
     if content

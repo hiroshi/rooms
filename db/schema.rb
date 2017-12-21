@@ -29,6 +29,8 @@ ActiveRecord::Schema.define(version: 20171219123437) do
     t.jsonb "meta", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "room_id"
+    t.index ["room_id"], name: "index_messages_on_room_id"
   end
 
   create_table "rooms", force: :cascade do |t|
@@ -48,4 +50,5 @@ ActiveRecord::Schema.define(version: 20171219123437) do
   end
 
   add_foreign_key "credentials", "users"
+  add_foreign_key "messages", "rooms"
 end
