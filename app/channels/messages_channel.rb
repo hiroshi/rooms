@@ -17,7 +17,7 @@ class MessagesChannel < ApplicationCable::Channel
   end
 
   def push(data)
-    room.messages.create!(data.slice('content'))
+    room.messages.create!(data.slice('content').merge(user: current_user))
     ActionCable.server.broadcast('messages', refresh: true)
   end
 
