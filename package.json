@@ -1,7 +1,7 @@
 {
   "name": "heroku-build",
   "scripts": {
-    "build": "cd client && npm install && yarn run build && cd ..",
+    "build": "npm install -g yarn && cd client && yarn && yarn run build && cd ..",
     "deploy": "cp -a client/build/. public/",
     "postinstall": "yarn run build && yarn run deploy && echo 'Client built!'"
   }
