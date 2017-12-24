@@ -6,5 +6,6 @@ test:
 
 production:
   adapter: redis
-  url: redis://localhost:6379/1
-  channel_prefix: rooms_production
+  # url: redis://localhost:6379/1
+  # channel_prefix: rooms_production
+  url: <%= ENV['REDISTOGO_URL'] %>
