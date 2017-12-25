@@ -13,6 +13,12 @@ class MessagesChannel < ApplicationCable::Channel
 
   def query(data)
     messages = room.messages.query(data['q']).order(created_at: :desc).limit(10)
+    messages = messages.as_json(
+      only: [:id, :content, :meta],
+      include: {
+        user: { only: [:id], methods: [:name] }
+      }
+    )
     ActionCable.server.broadcast(@broadcasting, messages: messages)
   end
 

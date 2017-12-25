@@ -4,6 +4,7 @@ class CreateCredentials < ActiveRecord::Migration[5.1]
       t.references :user, foreign_key: true
       t.string :provider, null: false
       t.string :uid, null: false
+      t.jsonb :info, null: false
       t.timestamps
     end
   end

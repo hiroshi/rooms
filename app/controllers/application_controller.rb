@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   def health
-    render plain: 'hello'
+    render plain: 'ok'
   end
 
   def auth_callback
@@ -8,8 +8,9 @@ class ApplicationController < ActionController::Base
     cred = Credential.find_or_create_by(provider: auth.provider, uid: auth.uid)
     unless cred.user
       cred.create_user!
-      cred.save!
     end
+    cred.info = auth.info
+    cred.save!
     user = cred.user
     if user.rooms.blank?
       user.rooms.create!(name: 'New Room')

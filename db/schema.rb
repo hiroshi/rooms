@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 20171219123437) do
     t.bigint "user_id"
     t.string "provider", null: false
     t.string "uid", null: false
+    t.jsonb "info", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_credentials_on_user_id"

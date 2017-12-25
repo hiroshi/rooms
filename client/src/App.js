@@ -138,6 +138,11 @@ class Messages extends Component {
             this.state.messages.map((message) => {
               return (
                 <div key={message.id} className='card' onClick={ () => this.props.editMessage(message) }>
+                  <div className='card-header'>
+                    <div className='card-header-title'>
+                      { message.user.name }
+                    </div>
+                  </div>
                   <div className='card-content'>
                     <p>{message.content}</p>
                     <div className='tags'>
@@ -194,12 +199,12 @@ class App extends Component {
 
   render () {
     let user = this.state.current_user
-        ? <p>current_user: {this.state.current_user.id}</p>
+        ? <p>current_user: {this.state.current_user.name}</p>
         : <p><a href='/auth/github'>login</a></p>
     return (
       <Router>
         <div>
-          <p>health: { this.state.health }</p>
+          <p>api health: { this.state.health }</p>
           { user }
           <div className='tile is-ancestor'>
             <div className='tile is-6 is-vertical is-parent'>
