@@ -141,7 +141,7 @@ class Messages extends Component {
                   <div className='card-content'>
                     <p>{message.content}</p>
                     <div className='tags'>
-                      <span key='@user' class="tag is-dark">@{ message.user.name }</span>
+                      <span key='@user' className="tag is-dark">@{ message.user.name }</span>
                       {
                         message.meta.tags && message.meta.tags.map((tag) => {
                           return <span key={tag} className='tag is-info'>#{tag}</span>
