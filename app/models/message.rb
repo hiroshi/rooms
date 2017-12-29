@@ -1,6 +1,10 @@
 class Message < ApplicationRecord
   belongs_to :room
   belongs_to :user
+  has_many :ancestor_relationships, class_name: 'MessageRelationship', foreign_key: :child_id
+  has_many :ancestors, through: :ancestor_relationships, source: :parent
+  has_many :descendant_relationships, class_name: 'MessageRelationship', foreign_key: :parent_id
+  has_many :descendants, through: :message_relationships, source: :child
 
   before_save do
     tags = []

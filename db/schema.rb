@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171219123437) do
+ActiveRecord::Schema.define(version: 20171227233614) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,14 @@ ActiveRecord::Schema.define(version: 20171219123437) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_credentials_on_user_id"
+  end
+
+  create_table "message_relationships", force: :cascade do |t|
+    t.integer "order", null: false
+    t.bigint "parent_id"
+    t.bigint "child_id"
+    t.index ["child_id"], name: "index_message_relationships_on_child_id"
+    t.index ["parent_id"], name: "index_message_relationships_on_parent_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -53,6 +61,8 @@ ActiveRecord::Schema.define(version: 20171219123437) do
   end
 
   add_foreign_key "credentials", "users"
+  add_foreign_key "message_relationships", "messages", column: "child_id"
+  add_foreign_key "message_relationships", "messages", column: "parent_id"
   add_foreign_key "messages", "rooms"
   add_foreign_key "messages", "users"
 end

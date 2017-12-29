@@ -65,12 +65,19 @@ class MessageEdit extends Component {
     this.subscription.perform('save', {id: this.props.message.id, content: this.textarea.value})
   }
 
+  reply = (value) => {
+    this.subscription.perform('reply', {content: value})
+  }
+
   render () {
     let message = this.props.message
     return (
-      <div key={message.id} className='card'>
-        <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
-        <button className='button is-primary' onClick={this.save}>Save</button>
+      <div className='tile is-child box'>
+        <div key={message.id} className='card field'>
+          <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
+          <button className='button is-primary' onClick={this.save}>Save</button>
+        </div>
+        <InputButton buttonText='reply' action={this.reply} clearAfterAction={true} />
       </div>
     )
   }
@@ -209,7 +216,10 @@ class App extends Component {
                 }}/>
             </div>
             <div className='tile is-6 is-vertical is-parent'>
-              { this.state.message && <MessageEdit cable={this.cable} message={this.state.message} /> }
+              {
+                this.state.message &&
+                  <MessageEdit cable={this.cable} message={this.state.message} />
+              }
             </div>
           </div>
         </div>

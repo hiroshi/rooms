@@ -10,7 +10,22 @@ class MessageChannel < ApplicationCable::Channel
     ActionCable.server.broadcast('messages', refresh: true)
   end
 
-  def addLabel(data)
-    message = Message.find(data['id'])
+  # def addLabel(data)
+  #   message = Message.find(data['id'])
+  # end
+
+  def reply(data)
+    ActiveRecord::Base.transaction do
+      room = message.room
+      child = Message.create!(data.slice('content').merge(user: current_user, room: room))
+      message.descendant_relationships.create!(child: child, order: 0)
+    end
+    ActionCable.server.broadcast('messages', refresh: true)
+  end
+
+  private
+
+  def message
+    Message.find(params[:id])
   end
 end
