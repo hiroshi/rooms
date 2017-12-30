@@ -150,6 +150,14 @@ class Messages extends Component {
                     <div className='tags'>
                       <span key='@user' className="tag is-dark">@{ message.user.name }</span>
                       {
+                        message.ancestors.length > 0 &&
+                          <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
+                      }
+                      {
+                        message.descendants.length > 0 &&
+                            <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
+                      }
+                      {
                         message.meta.tags && message.meta.tags.map((tag) => {
                           return <span key={tag} className='tag is-info'>#{tag}</span>
                         })

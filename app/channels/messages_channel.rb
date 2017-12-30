@@ -16,7 +16,9 @@ class MessagesChannel < ApplicationCable::Channel
     messages = messages.as_json(
       only: [:id, :content, :meta],
       include: {
-        user: { only: [:id], methods: [:name] }
+        user: { only: :id, methods: :name },
+        ancestors: { only: :id },
+        descendants: { only: :id }
       }
     )
     ActionCable.server.broadcast(@broadcasting, messages: messages)
