@@ -31,9 +31,17 @@ class Message < ApplicationRecord
 
   scope :query, -> (query) {
     return all if query.blank?
-    ts = query.scan(/(?:\s|^)([^\!]\S+)/).map {|tag, _| tag }
+    ts = query.scan(/(?:\s|^)([^\!\/]\S+)/).map {|tag, _| tag }
     q = all.tags(*ts)
     nts = query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag }
-    q.no_tags(*nts)
+    q = q.no_tags(*nts)
+    parent_ids = query.scan(/(?:\s|^)\/p(\d+)/).map {|parent_id, _| parent_id }
+    if parent_ids.present?
+      q = q.joins(:ancestor_relationships)
+    end
+    parent_ids.each do |parent_id|
+      q = q.where(message_relationships: { parent_id: parent_id})
+    end
+    q
   }
 end

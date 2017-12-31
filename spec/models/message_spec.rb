@@ -82,6 +82,25 @@ RSpec.describe Message, type: :model do
         it { is_expected.not_to exist }
       end
     end
+
+    describe 'query("/p:parent")' do
+      let(:parent) { Message.create!(room: room, user: user) }
+      let(:subject) { Message.query("/p#{parent.id}") }
+
+      context 'there is a child of parent message' do
+        let!(:child) do
+          message = Message.create!(room: room, user: user, content: '#todo')
+          message.ancestor_relationships.create!(parent: parent, order: 0)
+        end
+        it { is_expected.to exist }
+      end
+
+      context 'there is a message but a child of parent' do
+        let!(:message) { Message.create!(room: room, user: user, content: '#todo') }
+
+        it { is_expected.not_to exist }
+      end
+    end
   end
 
   describe 'ancestors' do

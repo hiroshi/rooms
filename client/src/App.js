@@ -97,6 +97,7 @@ class MessageEdit extends Component {
           <button className='button is-primary' onClick={this.save}>Save</button>
         </div>
         <InputButton buttonText='reply' action={this.reply} clearAfterAction={true} />
+        <Messages cable={this.props.cable} params={{room: this.props.message.room_id, q: '/p' + message.id}} />
       </div>
     )
   }
@@ -106,6 +107,7 @@ class Messages extends Component {
   constructor (props) {
     super(props)
     this.state = {messages: []}
+    this._subscribe(props)
   }
 
   componentWillReceiveProps (nextProps) {
@@ -115,15 +117,19 @@ class Messages extends Component {
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
-    this.subscription = nextProps.cable.subscriptions.create(
-      Object.assign({channel: 'MessagesChannel'}, nextProps.params),
+    this._subscribe(nextProps)
+  }
+
+  _subscribe (props) {
+    this.subscription = props.cable.subscriptions.create(
+      Object.assign({channel: 'MessagesChannel'}, props.params),
       {
         connected: (data) => {
           // console.log('connected: ' + data)
         },
         received: (info) => {
           if (info.refresh) {
-            this.subscription.perform('query', nextProps.params)
+            this.subscription.perform('query', props.params)
           }
           if (info.messages) {
             this.setState({messages: info.messages})
