@@ -52,6 +52,25 @@ class InputButton extends Component {
   }
 }
 
+class NewMessage extends Component {
+  constructor (props) {
+    super(props)
+    this.subscription = this.props.cable.subscriptions.create({channel: 'MessageChannel'})
+  }
+
+  push = (value) => {
+    this.subscription.perform('create', {content: value, room_id: this.props.room.id})
+  }
+
+  render () {
+    return (
+      <div className='tile is-child box'>
+        <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
+      </div>
+    )
+  }
+}
+
 class MessageEdit extends Component {
   constructor (props) {
     super(props)
@@ -62,7 +81,7 @@ class MessageEdit extends Component {
 
   save = () => {
     // console.log(this.textarea.value)
-    this.subscription.perform('save', {id: this.props.message.id, content: this.textarea.value})
+    this.subscription.perform('update', {id: this.props.message.id, content: this.textarea.value})
   }
 
   reply = (value) => {
@@ -131,15 +150,10 @@ class Messages extends Component {
     this.subscription.perform('query', params)
   }
 
-  push = (value) => {
-    this.subscription.perform('push', {content: value})
-  }
-
   render () {
     return (
       <div className='tile is-child box'>
         <InputButton buttonText='query' placeholder='!done todo' value={this.state.params.q} action={this.query} />
-        <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
         <div>
           {
             this.state.messages.map((message) => {
@@ -224,6 +238,10 @@ class App extends Component {
                 }}/>
             </div>
             <div className='tile is-6 is-vertical is-parent'>
+              {
+                this.state.current_user &&
+                  <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
+              }
               {
                 this.state.message &&
                   <MessageEdit cable={this.cable} message={this.state.message} />
