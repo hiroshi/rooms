@@ -64,7 +64,7 @@ class NewMessage extends Component {
 
   render () {
     return (
-      <div className='tile is-child box'>
+      <div className='box'>
         <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
       </div>
     )
@@ -91,7 +91,7 @@ class MessageEdit extends Component {
   render () {
     let message = this.props.message
     return (
-      <div className='tile is-child box'>
+      <div className='box'>
         <div key={message.id} className='card field'>
           <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
           <button className='button is-primary' onClick={this.save}>Save</button>
@@ -232,12 +232,12 @@ class App extends Component {
           <p>api health: { this.state.health }</p>
           { user }
           <div className='tile is-ancestor'>
-            <div className='tile is-6 is-vertical is-parent'>
+            <div className='tile is-parent'>
               <Route path='/' render={props => {
                   return <Messages {...props} cable={this.cable} editMessage={this.editMessage} />
                 }}/>
             </div>
-            <div className='tile is-6 is-vertical is-parent'>
+            <div className='tile is-vertical is-parent'>
               {
                 this.state.current_user &&
                   <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
