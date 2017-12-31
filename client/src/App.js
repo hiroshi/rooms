@@ -7,11 +7,11 @@ import './App.css'
 class InputButton extends Component {
   constructor (props) {
     super(props)
-    this.state = {value: props.value}
+    this.state = {value: props.value || ''}
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({value: nextProps.value})
+    this.setState({value: nextProps.value || ''})
   }
 
   handleKeyPress = (e) => {
@@ -105,17 +105,25 @@ class MessageEdit extends Component {
 class Messages extends Component {
   constructor (props) {
     super(props)
-    let params = this.getQueryParamsFromLocation(props.location)
-    this.state = {messages: [], params: params}
-    this.subscription = this.props.cable.subscriptions.create(
-      Object.assign({channel: 'MessagesChannel'}, params),
+    this.state = {messages: []}
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (this.subscription && nextProps.params.q === this.props.params.q) {
+      return
+    }
+    if (this.subscription) {
+      this.subscription.unsubscribe()
+    }
+    this.subscription = nextProps.cable.subscriptions.create(
+      Object.assign({channel: 'MessagesChannel'}, nextProps.params),
       {
         connected: (data) => {
           // console.log('connected: ' + data)
         },
         received: (info) => {
           if (info.refresh) {
-            this.subscription.perform('query', this.state.params)
+            this.subscription.perform('query', nextProps.params)
           }
           if (info.messages) {
             this.setState({messages: info.messages})
@@ -124,11 +132,57 @@ class Messages extends Component {
       })
   }
 
+  componentWillUnmount () {
+    this.subscription.unsubscribe()
+  }
+
+  render () {
+    return (
+      <div>
+        {
+          this.state.messages.map((message) => {
+            return (
+              <div key={message.id} className='card' onClick={ () => this.props.onSelect(message) }>
+                <div className='card-content'>
+                  <p>{message.content}</p>
+                  <div className='tags'>
+                    <span key='@user' className="tag is-dark">@{ message.user.name }</span>
+                    {
+                      message.ancestors.length > 0 &&
+                        <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
+                    }
+                    {
+                      message.descendants.length > 0 &&
+                          <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
+                    }
+                    {
+                      message.meta.tags && message.meta.tags.map((tag) => {
+                        return <span key={tag} className='tag is-info'>#{tag}</span>
+                      })
+                    }
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        }
+      </div>
+    )
+  }
+}
+
+class MessagesFilter extends Component {
+  constructor (props) {
+    super(props)
+    let params = this.getQueryParamsFromLocation(props.location)
+    this.state = {params: params}
+  }
+
   componentWillReceiveProps(nextProps) {
     let nextParams = this.getQueryParamsFromLocation(nextProps.location)
     if (JSON.stringify(this.state.params) !== JSON.stringify(nextParams)) {
       this.setState({params: nextParams})
-      this.subscription.perform('query', nextParams)
+      // this.subscription.perform('query', nextParams)
     }
   }
 
@@ -141,48 +195,20 @@ class Messages extends Component {
   }
 
   query = (value) => {
-    let params = this.state.params
+    let params = Object.assign({}, this.state.params)
     params.q = value
     this.setState({params: params})
     let urlParams = new URLSearchParams(this.props.location.search)
     urlParams.set('q', value)
     this.props.history.push({search: urlParams.toString()})
-    this.subscription.perform('query', params)
+    // this.subscription.perform('query', params)
   }
 
   render () {
     return (
       <div className='tile is-child box'>
-        <InputButton buttonText='query' placeholder='!done todo' value={this.state.params.q} action={this.query} />
-        <div>
-          {
-            this.state.messages.map((message) => {
-              return (
-                <div key={message.id} className='card' onClick={ () => this.props.editMessage(message) }>
-                  <div className='card-content'>
-                    <p>{message.content}</p>
-                    <div className='tags'>
-                      <span key='@user' className="tag is-dark">@{ message.user.name }</span>
-                      {
-                        message.ancestors.length > 0 &&
-                          <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
-                      }
-                      {
-                        message.descendants.length > 0 &&
-                            <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
-                      }
-                      {
-                        message.meta.tags && message.meta.tags.map((tag) => {
-                          return <span key={tag} className='tag is-info'>#{tag}</span>
-                        })
-                      }
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          }
-        </div>
+        <InputButton buttonText='query' placeholder='todo !done' value={this.state.params.q} action={this.query} />
+        <Messages cable={this.props.cable} params={this.state.params} onSelect={this.props.editMessage} />
       </div>
     )
   }
@@ -234,7 +260,7 @@ class App extends Component {
           <div className='tile is-ancestor'>
             <div className='tile is-parent'>
               <Route path='/' render={props => {
-                  return <Messages {...props} cable={this.cable} editMessage={this.editMessage} />
+                  return <MessagesFilter {...props} cable={this.cable} editMessage={this.editMessage} />
                 }}/>
             </div>
             <div className='tile is-vertical is-parent'>
