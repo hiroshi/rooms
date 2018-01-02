@@ -18,4 +18,9 @@ class ApplicationController < ActionController::Base
     cookies.encrypted[:user_id] = user.id
     redirect_to "/?room=#{user.rooms.first.id}"
   end
+
+  def feed_callback
+    logger.info JSON.parse(request.body.read())
+    head :ok
+  end
 end
