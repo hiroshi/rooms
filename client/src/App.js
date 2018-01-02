@@ -132,7 +132,7 @@ class Messages extends Component {
             this.subscription.perform('query', props.params)
           }
           if (info.messages) {
-            this.setState({messages: info.messages})
+            this.setState(info)
           }
         }
       })
@@ -140,6 +140,10 @@ class Messages extends Component {
 
   componentWillUnmount () {
     this.subscription.unsubscribe()
+  }
+
+  addTag = (id, tag) => {
+    this.subscription.perform('add_tag', {id: id, tag: tag})
   }
 
   render () {
@@ -164,6 +168,11 @@ class Messages extends Component {
                     {
                       message.meta.tags && message.meta.tags.map((tag) => {
                         return <span key={tag} className='tag is-info'>#{tag}</span>
+                      })
+                    }
+                    {
+                      this.state.query.no_tags.map((tag) => {
+                            return <span key={tag} className='tag button is-primary' onClick={(e) => {e.stopPropagation(); this.addTag(message.id, tag)}}>{tag}</span>
                       })
                     }
                   </div>

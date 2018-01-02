@@ -11,8 +11,10 @@ class MessagesChannel < ApplicationCable::Channel
     logger.info "unsubscribed"
   end
 
+  # data: { q: }
   def query(data)
-    messages = room.messages.query(data['q']).order(created_at: :desc).limit(10)
+    q = data['q']
+    messages = room.messages.query(q).order(created_at: :desc).limit(10)
     messages = messages.as_json(
       only: [:id, :content, :meta, :room_id],
       include: {
@@ -21,7 +23,15 @@ class MessagesChannel < ApplicationCable::Channel
         descendants: { only: :id }
       }
     )
-    ActionCable.server.broadcast(@broadcasting, messages: messages)
+    ActionCable.server.broadcast(@broadcasting, messages: messages, query: Message.parse_query(q))
+  end
+
+  # data: { id:, tag: }
+  def add_tag(data)
+    message = room.messages.find(data['id'])
+    message.content += " ##{data['tag']}"
+    message.save!
+    ActionCable.server.broadcast('messages', refresh: true)
   end
 
   private

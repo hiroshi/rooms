@@ -29,19 +29,24 @@ class Message < ApplicationRecord
     q.or(where('meta->\'tags\' is NULL'))
   }
 
-  scope :query, -> (query) {
-    return all if query.blank?
-    ts = query.scan(/(?:\s|^)([^\!\/]\S+)/).map {|tag, _| tag }
-    q = all.tags(*ts)
-    nts = query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag }
-    q = q.no_tags(*nts)
-    parent_ids = query.scan(/(?:\s|^)\/p(\d+)/).map {|parent_id, _| parent_id }
-    if parent_ids.present?
+  scope :query, -> (query_string) {
+    return all if query_string.blank?
+    query = parse_query(query_string)
+    q = tags(*query[:tags]).no_tags(*query[:no_tags])
+    if query[:parent_ids].present?
       q = q.joins(:ancestor_relationships)
     end
-    parent_ids.each do |parent_id|
+    query[:parent_ids].each do |parent_id|
       q = q.where(message_relationships: { parent_id: parent_id})
     end
     q
   }
+
+  def self.parse_query(query)
+    {
+      tags: query.scan(/(?:\s|^)([^\!\/]\S+)/).map {|tag, _| tag },
+      no_tags: query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag },
+      parent_ids: query.scan(/(?:\s|^)\/p(\d+)/).map {|parent_id, _| parent_id }
+    }
+  end
 end
