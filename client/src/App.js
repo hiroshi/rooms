@@ -74,8 +74,21 @@ class NewMessage extends Component {
 class MessageEdit extends Component {
   constructor (props) {
     super(props)
-    this.subscription = this.props.cable.subscriptions.create(
-      {channel: 'MessageChannel', id: this.props.message.id}
+    this._subscribe(props)
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (this.props.message.id != nextProps.message.id) {
+      if (this.subscription) {
+        this.subscription.unsubscribe()
+      }
+      this._subscribe(nextProps)
+    }
+  }
+
+  _subscribe (props) {
+    this.subscription = props.cable.subscriptions.create(
+      {channel: 'MessageChannel', id: props.message.id}
     )
   }
 
