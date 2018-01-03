@@ -20,7 +20,17 @@ class ApplicationController < ActionController::Base
   end
 
   def feed_callback
-    logger.info JSON.parse(request.body.read())
+    json =  JSON.parse(request.body.read())
+    if json['items'].present?
+      json['items'].each do |item|
+        Message.create!(room_id: 1, user_id: 2, content: <<-CONTENT)
+        #{item['title']} / #{json['title']}
+        #{item['standardLinks'].map{|_,v| v}.flatten.join("\n")}
+        #feed #HackerNews
+        CONTENT
+      end
+      ActionCable.server.broadcast('messages', refresh: true)
+    end
     head :ok
   end
 end
