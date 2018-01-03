@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
     json =  JSON.parse(request.body.read())
     if json['items'].present?
       json['items'].each do |item|
-        Message.create!(room_id: 1, user_id: 2, content: <<-CONTENT)
+        Message.create!(room_id: 1, user_id: 2, content: <<~CONTENT)
         #{item['title']} / #{json['title']}
         #{item['standardLinks'].values.flatten.map{|l|l['href']}.join("\n")}
         #feed #HackerNews
