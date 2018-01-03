@@ -4,6 +4,15 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ActionCable from 'actioncable'
 import './App.css'
 
+function getQueryParamsFromLocation(location) {
+  let params = {}
+  for (let pair of new URLSearchParams(location.search)) {
+    params[pair[0]] = pair[1]
+  }
+  return params
+}
+
+
 class InputButton extends Component {
   constructor (props) {
     super(props)
@@ -37,7 +46,7 @@ class InputButton extends Component {
         <div className='control is-expanded'>
           <input
             type='text'
-            autocapitalize='off'
+            autoCapitalize='off'
             value={this.state.value}
             placeholder={this.props.placeholder}
             ref={x => this.input = x}
@@ -79,7 +88,7 @@ class MessageEdit extends Component {
   }
 
   componentWillReceiveProps (nextProps) {
-    if (this.props.message.id != nextProps.message.id) {
+    if (this.props.message.id !== nextProps.message.id) {
       if (this.subscription) {
         this.subscription.unsubscribe()
       }
@@ -135,11 +144,14 @@ class Messages extends Component {
   }
 
   _subscribe (props) {
+    if (!props.params.room) {
+      return
+    }
     this.subscription = props.cable.subscriptions.create(
       Object.assign({channel: 'MessagesChannel'}, props.params),
       {
         connected: (data) => {
-          // console.log('connected: ' + data)
+          console.log('messages connected: params' + JSON.stringify(props.params))
         },
         received: (info) => {
           if (info.refresh) {
@@ -210,24 +222,16 @@ class Messages extends Component {
 class MessagesFilter extends Component {
   constructor (props) {
     super(props)
-    let params = this.getQueryParamsFromLocation(props.location)
+    let params = getQueryParamsFromLocation(props.location)
     this.state = {params: params}
   }
 
   componentWillReceiveProps(nextProps) {
-    let nextParams = this.getQueryParamsFromLocation(nextProps.location)
+    let nextParams = getQueryParamsFromLocation(nextProps.location)
     if (JSON.stringify(this.state.params) !== JSON.stringify(nextParams)) {
       this.setState({params: nextParams})
       // this.subscription.perform('query', nextParams)
     }
-  }
-
-  getQueryParamsFromLocation(location) {
-    let params = {}
-    for (let pair of new URLSearchParams(location.search)) {
-      params[pair[0]] = pair[1]
-    }
-    return params
   }
 
   query = (value) => {
@@ -250,7 +254,7 @@ class MessagesFilter extends Component {
   }
 }
 
-class App extends Component {
+class Rooms extends Component {
   constructor (props) {
     super(props)
     this.state = {}
@@ -273,6 +277,11 @@ class App extends Component {
           console.log("current_user connected: " + data)
         },
         received: (user) => {
+          let urlParams = new URLSearchParams(this.props.location.search)
+          if (!urlParams.get('room')) {
+            urlParams.set('room', user.rooms[0].id)
+            this.props.history.replace({search: urlParams.toString()})
+          }
           console.log("current_user received: " + JSON.stringify(user))
           this.setState({current_user: user})
         }
@@ -289,31 +298,33 @@ class App extends Component {
         ? <p>current_user: {this.state.current_user.name}</p>
         : <p><a href='/auth/github'>login</a></p>
     return (
-      <Router>
-        <div>
-          <p>api health: { this.state.health }</p>
-          { user }
-          <div className='tile is-ancestor'>
-            <div className='tile is-parent'>
-              <Route path='/' render={props => {
-                  return <MessagesFilter {...props} cable={this.cable} editMessage={this.editMessage} />
-                }}/>
-            </div>
-            <div className='tile is-vertical is-parent'>
-              {
-                this.state.current_user &&
-                  <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
-              }
-              {
-                this.state.message &&
-                  <MessageEdit cable={this.cable} message={this.state.message} />
-              }
-            </div>
+      <div>
+        <p>api health: { this.state.health }</p>
+        { user }
+        <div className='tile is-ancestor'>
+          <div className='tile is-parent'>
+            <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
+          </div>
+          <div className='tile is-vertical is-parent'>
+            {
+              this.state.current_user &&
+                <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
+            }
+            {
+              this.state.message &&
+                <MessageEdit cable={this.cable} message={this.state.message} />
+            }
           </div>
         </div>
-      </Router>
+      </div>
     )
   }
 }
+
+const App = () => (
+  <Router>
+    <Route path='/' component={Rooms} />
+  </Router>
+)
 
 export default App
