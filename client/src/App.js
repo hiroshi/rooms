@@ -37,6 +37,7 @@ class InputButton extends Component {
         <div className='control is-expanded'>
           <input
             type='text'
+            autocapitalize='off'
             value={this.state.value}
             placeholder={this.props.placeholder}
             ref={x => this.input = x}
