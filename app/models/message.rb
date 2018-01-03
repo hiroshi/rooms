@@ -8,12 +8,14 @@ class Message < ApplicationRecord
 
   before_save do
     tags = []
+    urls = []
     if content
       content.scan(/(?:\s|^)#(\S+)/) do |tag, _|
         tags << tag
       end
+      urls = URI.extract(content)
     end
-    meta[:tags] = tags
+    meta.update(tags: tags, urls: urls)
   end
 
   scope :tags, -> (*tags) {

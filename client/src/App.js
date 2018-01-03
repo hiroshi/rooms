@@ -154,7 +154,14 @@ class Messages extends Component {
             return (
               <div key={message.id} className='card' onClick={ () => this.props.onSelect(message) }>
                 <div className='card-content'>
-                  <p>{message.content}</p>
+                  <p>{message.content.split("\n")[0]}</p>
+                  <ul>
+                    {
+                      message.meta.urls && message.meta.urls.map((url) => {
+                        return <li key={url}><a target='_blank' href={url}>{url}</a></li>
+                      })
+                    }
+                  </ul>
                   <div className='tags'>
                     <span key='@user' className="tag is-dark">@{ message.user.name }</span>
                     {
