@@ -32,7 +32,6 @@ class Message < ApplicationRecord
   }
 
   scope :query, -> (query_string) {
-    return all if query_string.blank?
     query = parse_query(query_string)
     q = tags(*query[:tags]).no_tags(*query[:no_tags])
     if query[:parent_ids].present?
@@ -45,6 +44,7 @@ class Message < ApplicationRecord
   }
 
   def self.parse_query(query)
+    query = "" if query.nil?
     {
       tags: query.scan(/(?:\s|^)([^\!\/]\S+)/).map {|tag, _| tag },
       no_tags: query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag },
