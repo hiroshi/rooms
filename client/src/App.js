@@ -126,6 +126,48 @@ class MessageEdit extends Component {
   }
 }
 
+class Message extends Component {
+  render () {
+    let message = this.props.message
+    return (
+      <div className='card' onClick={ () => this.props.onSelect(message) }>
+        <div className='card-content'>
+          <p>{message.content.split("\n")[0]}</p>
+          <ul>
+            {
+              message.meta.urls && message.meta.urls.map((url) => {
+                return <li key={url}><a target='_blank' href={url}>{url}</a></li>
+              })
+            }
+          </ul>
+          <div className='tags'>
+            <span key='@user' className="tag is-dark">@{ message.user.name }</span>
+            {
+              message.ancestors.length > 0 &&
+                <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
+            }
+            {
+              message.descendants.length > 0 &&
+                  <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
+            }
+            {
+              message.meta.tags && message.meta.tags.map((tag) => {
+                return <span key={tag} className='tag is-info'>#{tag}</span>
+              })
+            }
+            {
+              this.props.noTags.map((tag) => {
+                return <span key={tag} className='tag button is-primary' onClick={(e) => {e.stopPropagation(); this.props.addTag(message.id, tag)}}>{tag}</span>
+              })
+            }
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+
 class Messages extends Component {
   constructor (props) {
     super(props)
@@ -183,45 +225,11 @@ class Messages extends Component {
             </div>
           </div>
         </div>
-        {
-          this.state.messages.map((message) => {
-            return (
-              <div key={message.id} className='card' onClick={ () => this.props.onSelect(message) }>
-                <div className='card-content'>
-                  <p>{message.content.split("\n")[0]}</p>
-                  <ul>
-                    {
-                      message.meta.urls && message.meta.urls.map((url) => {
-                        return <li key={url}><a target='_blank' href={url}>{url}</a></li>
-                      })
-                    }
-                  </ul>
-                  <div className='tags'>
-                    <span key='@user' className="tag is-dark">@{ message.user.name }</span>
-                    {
-                      message.ancestors.length > 0 &&
-                        <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
-                    }
-                    {
-                      message.descendants.length > 0 &&
-                          <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
-                    }
-                    {
-                      message.meta.tags && message.meta.tags.map((tag) => {
-                        return <span key={tag} className='tag is-info'>#{tag}</span>
-                      })
-                    }
-                    {
-                      this.state.query.no_tags.map((tag) => {
-                            return <span key={tag} className='tag button is-primary' onClick={(e) => {e.stopPropagation(); this.addTag(message.id, tag)}}>{tag}</span>
-                      })
-                    }
-                  </div>
-                </div>
-              </div>
-            )
-          })
-        }
+          {
+            this.state.messages.map((message) => {
+              return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} />
+            })
+          }
       </div>
     )
   }
