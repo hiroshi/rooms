@@ -23,7 +23,12 @@ class MessagesChannel < ApplicationCable::Channel
         descendants: { only: :id }
       }
     )
-    ActionCable.server.broadcast(@broadcasting, messages: messages, query: Message.parse_query(q))
+    ActionCable.server.broadcast(
+      @broadcasting,
+      messages: messages,
+      query: Message.parse_query(q),
+      count: room.messages.query(q).count
+    )
   end
 
   # data: { id:, tag: }

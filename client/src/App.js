@@ -175,6 +175,14 @@ class Messages extends Component {
   render () {
     return (
       <div>
+        <div className='field is-grouped is-grouped-multiline'>
+          <div className='control'>
+            <div className='tags has-addons'>
+              <span className="tag">count</span>
+              <span className="tag is-info">{this.state.count}</span>
+            </div>
+          </div>
+        </div>
         {
           this.state.messages.map((message) => {
             return (
