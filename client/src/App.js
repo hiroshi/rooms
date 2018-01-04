@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 // import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ActionCable from 'actioncable'
+import moment from 'moment'
 import './App.css'
 
 function getQueryParamsFromLocation(location) {
@@ -141,7 +142,8 @@ class Message extends Component {
             }
           </ul>
           <div className='tags'>
-            <span key='@user' className="tag is-dark">@{ message.user.name }</span>
+            <span key='@user' className="tag">@{ message.user.name }</span>
+            <span key='_created_at' className="tag" title={message.created_at} >{ moment(message.created_at).fromNow() }</span>
             {
               message.ancestors.length > 0 &&
                 <span key='ancestor' className='tag is-warning'>{message.ancestors.length} ancestors</span>
