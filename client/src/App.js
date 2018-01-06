@@ -229,7 +229,7 @@ class Messages extends Component {
         </div>
           {
             this.state.messages.map((message) => {
-              return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} />
+              return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} onSelect={this.props.onSelect}/>
             })
           }
       </div>
