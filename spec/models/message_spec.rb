@@ -101,6 +101,16 @@ RSpec.describe Message, type: :model do
         it { is_expected.not_to exist }
       end
     end
+
+    describe 'query("-id")' do
+      let!(:first) { Message.create!(room: room, user: user, content: 'first') }
+      let!(:second) { Message.create!(room: room, user: user, content: 'second') }
+      subject { Message.query('-id').map(&:id) }
+
+      it do
+        is_expected.to eq([first, second].map(&:id))
+      end
+    end
   end
 
   describe 'ancestors' do

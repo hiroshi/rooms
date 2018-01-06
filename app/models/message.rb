@@ -40,15 +40,24 @@ class Message < ApplicationRecord
     query[:parent_ids].each do |parent_id|
       q = q.where(message_relationships: { parent_id: parent_id})
     end
+    query[:orders].each do |order|
+      dir, colomn = order.match(/^([+-]?)(.*)$/)[1..2]
+      if dir == '-'
+        q = q.order(colomn => :asc)
+      else
+        q = q.order(colomn => :desc)
+      end
+    end
     q
   }
 
   def self.parse_query(query)
     query = "" if query.nil?
     {
-      tags: query.scan(/(?:\s|^)([^\!\/]\S+)/).map {|tag, _| tag },
-      no_tags: query.scan(/(?:\s|^)\!(\S+)/).map {|tag, _| tag },
-      parent_ids: query.scan(/(?:\s|^)\/p(\d+)/).map {|parent_id, _| parent_id }
+      tags: query.scan(/(?:\s|^)([^\!\/+-]\S+)/).map(&:first),
+      no_tags: query.scan(/(?:\s|^)\!(\S+)/).map(&:first),
+      parent_ids: query.scan(/(?:\s|^)\/p(\d+)/).map(&:first),
+      orders: query.scan(/(?:\s|^)([+-]\S+)/).map(&:first)
     }
   end
 end
