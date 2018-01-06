@@ -320,10 +320,10 @@ class Rooms extends Component {
         <p>api health: { this.state.health }</p>
         { user }
         <div className='tile is-ancestor'>
-          <div className='tile is-parent'>
+          <div className='tile is-parent is-6'>
             <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
           </div>
-          <div className='tile is-vertical is-parent'>
+          <div className='tile is-vertical is-parent is-6'>
             {
               this.state.current_user &&
                 <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
