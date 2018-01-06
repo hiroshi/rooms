@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
       user.rooms.create!(name: 'New Room')
     end
     cookies.encrypted[:user_id] = user.id
-    redirect_to "/?room=#{user.rooms.first.id}"
+    redirect_to request.env['omniauth.origin'] || "/?room=#{user.rooms.first.id}"
   end
 
   def feed_callback
