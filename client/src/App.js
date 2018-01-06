@@ -5,6 +5,7 @@ import ActionCable from 'actioncable'
 import moment from 'moment'
 import './App.css'
 
+
 function getQueryParamsFromLocation(location) {
   let params = {}
   for (let pair of new URLSearchParams(location.search)) {
@@ -132,7 +133,7 @@ class Message extends Component {
     let message = this.props.message
     return (
       <div className='card' onClick={ () => this.props.onSelect(message) }>
-        <div className='card-content'>
+        <div className='card-content break-all'>
           <p>{message.content.split("\n")[0]}</p>
           <ul>
             {
@@ -320,10 +321,10 @@ class Rooms extends Component {
         <p>api health: { this.state.health }</p>
         { user }
         <div className='tile is-ancestor'>
-          <div className='tile is-parent is-6'>
+          <div className='tile is-parent'>
             <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
           </div>
-          <div className='tile is-vertical is-parent is-6'>
+          <div className='tile is-vertical is-parent'>
             {
               this.state.current_user &&
                 <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />

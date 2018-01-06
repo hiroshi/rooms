@@ -2,6 +2,11 @@
     background-color: whitesmoke;
     color: #363636;
 }
+
+.break-all {
+  word-break: break-all;
+}
+
 /*
 .App {
   text-align: center;
