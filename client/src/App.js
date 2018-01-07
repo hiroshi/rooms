@@ -263,7 +263,18 @@ class MessagesFilter extends Component {
     // this.subscription.perform('query', params)
   }
 
+  title () {
+    let title = this.state.params.q
+    if (title !== '') {
+      title += ' - '
+    }
+    title += 'room/' + this.state.params.room
+    console.log('title: ' + title)
+    return title
+  }
+
   render () {
+    document.title = this.title()
     return (
       <div className='tile is-child box'>
         <InputButton buttonText='query' placeholder='todo !done' value={this.state.params.q} action={this.query} />
