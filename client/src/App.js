@@ -133,7 +133,7 @@ class Message extends Component {
     let message = this.props.message
     return (
       <div className='card' onClick={ () => this.props.onSelect(message) }>
-        <div className='card-content word-break-all'>
+        <div className='card-content break-word'>
           <p>{message.content.split("\n")[0]}</p>
           <ul>
             {
