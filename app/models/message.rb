@@ -18,6 +18,10 @@ class Message < ApplicationRecord
     meta.update(tags: tags, urls: urls)
   end
 
+  def first_line
+    content.split(/\n/).first
+  end
+
   scope :tags, -> (*tags) {
     return all if tags.blank?
     where('meta->\'tags\' @> ?', tags.to_json)

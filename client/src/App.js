@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import classNames from 'classnames'
 // import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ActionCable from 'actioncable'
@@ -42,6 +43,10 @@ class InputButton extends Component {
     this.setState({value: e.target.value})
   }
 
+  toggleFocus = (focus) => {
+    this.props.toggleFocus && this.props.toggleFocus(focus)
+  }
+
   render () {
     return (
       <div className='field has-addons'>
@@ -54,6 +59,8 @@ class InputButton extends Component {
             ref={x => this.input = x}
             onKeyPress={this.handleKeyPress}
             onChange={this.onChange}
+            onFocus={() => this.toggleFocus(true)}
+            onBlur={() => this.toggleFocus(false)}
             className='input' />
         </div>
         <div className='control'>
@@ -154,8 +161,8 @@ class Message extends Component {
                   <span key='descendants' className='tag is-warning'>{message.descendants.length} children</span>
             }
             {
-              message.meta.tags && message.meta.tags.map((tag) => {
-                return <span key={tag} className='tag is-info'>#{tag}</span>
+              message.meta.tags && message.meta.tags.map((tag, n) => {
+                return <span key={tag + '-' + n} className='tag is-info'>#{tag}</span>
               })
             }
             {
@@ -242,7 +249,7 @@ class MessagesFilter extends Component {
   constructor (props) {
     super(props)
     let params = getQueryParamsFromLocation(props.location)
-    this.state = {params: params}
+    this.state = {params: params, histories: []}
   }
 
   componentWillReceiveProps(nextProps) {
@@ -253,12 +260,12 @@ class MessagesFilter extends Component {
     }
   }
 
-  query = (value) => {
+  query = (q) => {
     let params = Object.assign({}, this.state.params)
-    params.q = value
+    params.q = q
     this.setState({params: params})
     let urlParams = new URLSearchParams(this.props.location.search)
-    urlParams.set('q', value)
+    urlParams.set('q', q)
     this.props.history.push({search: urlParams.toString()})
     // this.subscription.perform('query', params)
   }
@@ -269,16 +276,55 @@ class MessagesFilter extends Component {
       title += ' - '
     }
     title += 'room/' + this.state.params.room
-    console.log('title: ' + title)
     return title
+  }
+
+  toggleFocus = (focus) => {
+    if (focus) {
+      this.subscription = this.props.cable.subscriptions.create(
+        Object.assign({channel: 'QueryHistoriesChannel'}, this.state.params),
+        {
+          received: (info) => {
+            this.setState(info)
+          }
+        }
+      )
+    } else {
+      this.subscription.unsubscribe()
+      // this.setState({histories: []})
+    }
+    setTimeout(() => this.setState({focus: focus}), 100)
   }
 
   render () {
     document.title = this.title()
+    let dropdownClassNames = classNames({
+      dropdown: true,
+      'is-block': true,
+      'is-active': this.state.focus
+    })
     return (
       <div className='tile is-child box'>
-        <InputButton buttonText='query' placeholder='todo !done' value={this.state.params.q} action={this.query} />
-        <Messages cable={this.props.cable} params={this.state.params} onSelect={this.props.editMessage} />
+        <div className={ dropdownClassNames }>
+          <InputButton buttonText='query' placeholder='todo !done' value={this.state.params.q} action={this.query} toggleFocus={this.toggleFocus} />
+          <div className="dropdown-menu" id="dropdown-menu" role="menu">
+            <div className="dropdown-content">
+              {
+                this.state.histories.map((message) => {
+                  let q = message.first_line
+                  let urlParams = new URLSearchParams(this.props.location.search)
+                  urlParams.set('q', q)
+                  return (
+                    <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item">
+                      {message.first_line}
+                    </a>
+                  )
+                })
+              }
+            </div>
+          </div>
+        </div>
+        <Messages cable={this.props.cable} params={Object.assign({save: true}, this.state.params)} onSelect={this.props.editMessage} />
       </div>
     )
   }
