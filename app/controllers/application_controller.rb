@@ -23,6 +23,9 @@ class ApplicationController < ActionController::Base
     json =  JSON.parse(request.body.read())
     if json['items'].present?
       json['items'].each do |item|
+        if Message.where('meta->\'urls\' @> ?', [item['standardLinks']['replies'][0]['href']].to_json).exists?
+          next
+        end
         Message.create!(room_id: 1, user_id: 2, content: <<~CONTENT)
         #{item['title']} / #{json['title']}
         #{item['standardLinks'].values.flatten.map{|l|l['href']}.join("\n")}
