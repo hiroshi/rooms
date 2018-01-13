@@ -372,14 +372,28 @@ class Rooms extends Component {
     this.setState({message: message})
   }
 
+  user () {
+    if (this.state.current_user) {
+      return (
+         <div className='tags has-addons'>
+           <span className="tag">user</span>
+           <span className="tag is-info">{this.state.current_user.name}</span>
+         </div>
+      )
+    } else {
+      return <a className='button' href='/auth/github'>login</a>
+    }
+  }
+
   render () {
-    let user = this.state.current_user
-        ? <p>current_user: {this.state.current_user.name}</p>
-        : <p><a href='/auth/github'>login</a></p>
     return (
       <div>
         <p>api health: { this.state.health }</p>
-        { user }
+        <div className='tile is-parent'>
+          <div className='tile is-child is-3'>
+            { this.user() }
+          </div>
+        </div>
         <div className='tile is-ancestor'>
           <div className='tile is-parent'>
             <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
