@@ -1,5 +1,9 @@
 class QueryHistoriesChannel < ApplicationCable::Channel
   def subscribed
+    unless room
+      reject
+      return
+    end
     @broadcasting = "query_histories/" + SecureRandom.uuid
     stream_from @broadcasting
     histories(params)
@@ -27,6 +31,6 @@ class QueryHistoriesChannel < ApplicationCable::Channel
   private
 
   def room
-    Room.find(params['room'])
+    current_user.rooms.find_by(id: params['room'])
   end
 end

@@ -1,5 +1,9 @@
 class MessagesChannel < ApplicationCable::Channel
   def subscribed
+    unless room
+      reject
+      return
+    end
     stream_from 'messages'
     @broadcasting = "messages/" + SecureRandom.uuid
     stream_from @broadcasting
@@ -51,6 +55,6 @@ class MessagesChannel < ApplicationCable::Channel
   private
 
   def room
-    Room.find(params['room'])
+    current_user.rooms.find_by(id: params['room'])
   end
 end

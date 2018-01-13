@@ -205,6 +205,9 @@ class Messages extends Component {
         connected: (data) => {
           console.log('messages connected: params' + JSON.stringify(props.params))
         },
+        rejected: (data) => {
+          console.log('messages rejected: ' + JSON.stringify(props.params))
+        },
         received: (info) => {
           if (info.refresh) {
             this.subscription.perform('query', props.params)

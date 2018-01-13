@@ -1,5 +1,9 @@
 class MessageChannel < ApplicationCable::Channel
   def subscribed
+    unless room
+      reject
+      return
+    end
     stream_for message
   end
 
@@ -24,7 +28,11 @@ class MessageChannel < ApplicationCable::Channel
 
   private
 
+  def room
+    current_user.rooms.find_by(id: params['room'])
+  end
+
   def message
-    @message ||= Message.find_by(id: params[:id])
+    @message ||= room.message.find_by(id: params[:id])
   end
 end
