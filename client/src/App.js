@@ -27,7 +27,9 @@ class InputButton extends Component {
   }
 
   componentDidMount() {
-    this.input.setSelectionRange(0, 0)
+    if (this.props.autoFocus) {
+      this.input.setSelectionRange(0, 0)
+    }
   }
 
   handleKeyPress = (e) => {
