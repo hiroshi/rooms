@@ -26,6 +26,10 @@ class InputButton extends Component {
     this.setState({value: nextProps.value || ''})
   }
 
+  componentDidMount() {
+    this.input.setSelectionRange(0, 0)
+  }
+
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       this.push()
