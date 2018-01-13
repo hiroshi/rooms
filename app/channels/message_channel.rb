@@ -17,15 +17,6 @@ class MessageChannel < ApplicationCable::Channel
     ActionCable.server.broadcast('messages', refresh: true)
   end
 
-  def reply(data)
-    ActiveRecord::Base.transaction do
-      room = message.room
-      child = current_user.messages.create!(data.slice('content').merge(room: room))
-      message.descendant_relationships.create!(child: child, order: 0)
-    end
-    ActionCable.server.broadcast('messages', refresh: true)
-  end
-
   private
 
   def room

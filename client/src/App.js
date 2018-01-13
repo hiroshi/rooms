@@ -54,6 +54,7 @@ class InputButton extends Component {
           <input
             type='text'
             autoCapitalize='off'
+            autoFocus={this.props.autoFocus}
             value={this.state.value}
             placeholder={this.props.placeholder}
             ref={x => this.input = x}
@@ -66,25 +67,6 @@ class InputButton extends Component {
         <div className='control'>
           <button onClick={this.push} className='button is-primary'>{this.props.buttonText}</button>
         </div>
-      </div>
-    )
-  }
-}
-
-class NewMessage extends Component {
-  constructor (props) {
-    super(props)
-    this.subscription = this.props.cable.subscriptions.create({channel: 'MessageChannel'})
-  }
-
-  push = (value) => {
-    this.subscription.perform('create', {content: value, room_id: this.props.room.id})
-  }
-
-  render () {
-    return (
-      <div className='box'>
-        <InputButton buttonText='new' action={this.push} clearAfterAction={true} />
       </div>
     )
   }
@@ -116,10 +98,6 @@ class MessageEdit extends Component {
     this.subscription.perform('update', {id: this.props.message.id, content: this.textarea.value})
   }
 
-  reply = (value) => {
-    this.subscription.perform('reply', {content: value})
-  }
-
   render () {
     let message = this.props.message
     return (
@@ -128,7 +106,6 @@ class MessageEdit extends Component {
           <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
           <button className='button is-primary' onClick={this.save}>Save</button>
         </div>
-        <InputButton buttonText='reply' action={this.reply} clearAfterAction={true} />
         <Messages cable={this.props.cable} params={{room: this.props.message.room_id, q: '/p' + message.id}} />
       </div>
     )
@@ -176,7 +153,6 @@ class Message extends Component {
     )
   }
 }
-
 
 class Messages extends Component {
   constructor (props) {
@@ -227,6 +203,15 @@ class Messages extends Component {
     this.subscription.perform('add_tag', {id: id, tag: tag})
   }
 
+  openNewMessage = () => {
+    this.setState({newMessage: true})
+  }
+
+  push = (value) => {
+    this.subscription.perform('create', {content: value, parent_id: this.state.query.parent_ids[0]})
+    this.setState({newMessage: false})
+  }
+
   render () {
     return (
       <div>
@@ -237,12 +222,21 @@ class Messages extends Component {
               <span className="tag is-info">{this.state.count}</span>
             </div>
           </div>
-        </div>
           {
-            this.state.messages.map((message) => {
-              return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} onSelect={this.props.onSelect}/>
-            })
+            this.state.newMessage
+              ? <span className="tag button is-warning" onClick={() => this.setState({newMessage: false})}>cancel new message</span>
+              : <span className="tag button is-primary" onClick={this.openNewMessage}>new message</span>
           }
+        </div>
+        {
+          this.state.newMessage &&
+            <InputButton buttonText='new' action={this.push} clearAfterAction={true} autoFocus={true} value={this.state.query.tags.map((t) => " #" + t)} />
+        }
+        {
+          this.state.messages.map((message) => {
+            return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} onSelect={this.props.onSelect}/>
+          })
+        }
       </div>
     )
   }
@@ -399,10 +393,6 @@ class Rooms extends Component {
             <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
           </div>
           <div className='tile is-vertical is-parent'>
-            {
-              this.state.current_user &&
-                <NewMessage cable={this.cable} room={this.state.current_user.rooms[0]} />
-            }
             {
               this.state.message &&
                 <MessageEdit cable={this.cable} message={this.state.message} />
