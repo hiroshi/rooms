@@ -31,6 +31,7 @@ class MessagesChannel < ApplicationCable::Channel
       @broadcasting,
       messages: messages,
       query: Message.parse_query(q),
+      room: room.as_json(only: [:id, :name]),
       count: room.messages.query(q).count
     )
     # save query history

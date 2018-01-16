@@ -196,6 +196,9 @@ class Messages extends Component {
           }
           if (info.messages) {
             this.setState(info)
+            if (this.props.onQuery) {
+              this.props.onQuery(info)
+            }
           }
         }
       })
@@ -299,6 +302,11 @@ class MessagesFilter extends Component {
     setTimeout(() => this.setState({focus: focus}), 100)
   }
 
+  onQuery = (info) => {
+    // console.log(info)
+    this.setState({room: info.room})
+  }
+
   render () {
     document.title = this.title()
     let dropdownClassNames = classNames({
@@ -306,28 +314,42 @@ class MessagesFilter extends Component {
       'is-block': true,
       'is-active': this.state.focus
     })
+    let histories = this.state.histories.map((message) => {
+      let q = message.first_line
+      let urlParams = new URLSearchParams(this.props.location.search)
+      urlParams.set('q', q)
+      return (
+        <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item">
+          {message.first_line}
+        </a>
+      )
+    })
+    let room = this.state.room && (
+          <div className='field'>
+            <div className='tags has-addons'>
+              <span className="tag">room</span>
+              <span className="tag is-info">{this.state.room.name}</span>
+            </div>
+          </div>
+    )
+
     return (
       <div className='tile is-child box'>
+        { room }
         <div className={ dropdownClassNames }>
           <InputButton buttonText='query' placeholder='todo !done' value={this.state.params.q} action={this.query} toggleFocus={this.toggleFocus} />
           <div className="dropdown-menu" id="dropdown-menu" role="menu">
             <div className="dropdown-content">
-              {
-                this.state.histories.map((message) => {
-                  let q = message.first_line
-                  let urlParams = new URLSearchParams(this.props.location.search)
-                  urlParams.set('q', q)
-                  return (
-                    <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item">
-                      {message.first_line}
-                    </a>
-                  )
-                })
-              }
+              { histories }
             </div>
           </div>
         </div>
-        <Messages cable={this.props.cable} params={Object.assign({save: true}, this.state.params)} onSelect={this.props.editMessage} />
+        <Messages
+          cable={this.props.cable}
+          params={Object.assign({save: true}, this.state.params)}
+          onSelect={this.props.editMessage}
+          onQuery={this.onQuery}
+        />
       </div>
     )
   }
