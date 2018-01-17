@@ -20,10 +20,10 @@ class MessageChannel < ApplicationCable::Channel
   private
 
   def room
-    current_user.rooms.find_by(id: params['room'])
+    current_user.rooms.find_by(id: message.room_id)
   end
 
   def message
-    @message ||= room.message.find_by(id: params[:id])
+    Message.find_by(id: params[:id])
   end
 end
