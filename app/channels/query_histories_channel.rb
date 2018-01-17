@@ -16,8 +16,8 @@ class QueryHistoriesChannel < ApplicationCable::Channel
 
   # data: { q: }
  def histories(data)
-    # q = data['q']
-    messages = room.messages.tags('query').order(updated_at: :desc).limit(10)
+    query_tag = "q=#{data['q']}"
+    messages = room.messages.tags('query').no_tags(query_tag).order(updated_at: :desc).limit(10)
     messages = messages.as_json(
       only: :id,
       methods: :first_line,
