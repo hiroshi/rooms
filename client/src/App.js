@@ -320,7 +320,7 @@ class MessagesFilter extends Component {
       urlParams.set('q', q)
       return (
         <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item">
-          {message.first_line}
+          {message.first_line}&nbsp;
         </a>
       )
     })
