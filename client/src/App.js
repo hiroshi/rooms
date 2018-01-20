@@ -239,7 +239,7 @@ class Messages extends Component {
         </div>
         {
           this.state.newMessage &&
-            <InputButton buttonText='new' action={this.push} clearAfterAction={true} autoFocus={true} value={this.state.query.tags.map((t) => " #" + t)} />
+            <InputButton buttonText='new' action={this.push} clearAfterAction={true} autoFocus={true} value={this.state.query.tags.map((t) => " #" + t).join('')} />
         }
         {
           this.state.messages.map((message) => {
