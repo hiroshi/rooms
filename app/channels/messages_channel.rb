@@ -17,7 +17,7 @@ class MessagesChannel < ApplicationCable::Channel
 
   # data: { q: }
   def query(data)
-    q = data['q'].strip
+    q = (data['q'] || '').strip
     messages = room.messages.query(q).order(created_at: :desc).limit(10)
     messages = messages.as_json(
       only: [:id, :content, :meta, :room_id, :created_at],
