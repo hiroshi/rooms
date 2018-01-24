@@ -119,10 +119,25 @@ class MessageEdit extends Component {
 }
 
 class Message extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {}
+  }
+
   render () {
     let message = this.props.message
+    let edit = this.state.edit && (
+      <div className='modal is-active'>
+        <div className='modal-background' onClick={() => this.setState({edit:false})}></div>
+        <div className='modal-content'>
+          <MessageEdit cable={this.props.cable} message={this.props.message} />
+        </div>
+        <button className='modal-close is-large' aria-label='close' onClick={() => this.setState({edit:false})}></button>
+      </div>
+    )
+    // NOTE: The do-nothing onClick handler make mobile safari hover the div
     return (
-      <div className='card' onClick={ () => this.props.onSelect(message) }>
+      <div className='card hover' onClick={() => {}}>
         <div className='card-content break-word'>
           <p>{message.content.split("\n")[0]}</p>
           <ul>
@@ -155,6 +170,8 @@ class Message extends Component {
             }
           </div>
         </div>
+        <button className='button is-small top-right hover-appear' onClick={() => this.setState({edit:true})}>edit</button>
+        { edit }
       </div>
     )
   }
@@ -243,7 +260,7 @@ class Messages extends Component {
         }
         {
           this.state.messages.map((message) => {
-            return <Message key={message.id} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} onSelect={this.props.onSelect}/>
+            return <Message key={message.id} cable={this.props.cable} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} />
           })
         }
       </div>
@@ -347,7 +364,6 @@ class MessagesFilter extends Component {
         <Messages
           cable={this.props.cable}
           params={Object.assign({save: true}, this.state.params)}
-          onSelect={this.props.editMessage}
           onQuery={this.onQuery}
         />
       </div>
@@ -390,10 +406,6 @@ class Rooms extends Component {
     )
   }
 
-  editMessage = (message) => {
-    this.setState({message: message})
-  }
-
   user () {
     if (this.state.current_user) {
       return (
@@ -418,7 +430,7 @@ class Rooms extends Component {
         </div>
         <div className='tile is-ancestor'>
           <div className='tile is-parent'>
-            <MessagesFilter {...this.props} cable={this.cable} editMessage={this.editMessage} />
+            <MessagesFilter {...this.props} cable={this.cable} />
           </div>
           <div className='tile is-vertical is-parent'>
             {

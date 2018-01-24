@@ -4,8 +4,22 @@
 }
 
 .break-word {
-  word-break: break-word;
+    word-break: break-word;
 }
+
+.top-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.hover:not(:hover) .hover-appear {
+    display: none;
+}
+
+/* .is-hover:hover { */
+/*     display: none; */
+/* } */
 
 /*
 .App {
