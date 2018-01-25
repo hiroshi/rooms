@@ -419,6 +419,16 @@ class Rooms extends Component {
     }
   }
 
+  messageFilter () {
+    if (!this.state.current_user) {
+      return
+    }
+    return (
+      <div className='tile is-parent is-6'>
+        <MessagesFilter {...this.props} cable={this.cable} />
+      </div>
+    )
+  }
   render () {
     return (
       <div>
@@ -429,15 +439,7 @@ class Rooms extends Component {
           </div>
         </div>
         <div className='tile is-ancestor'>
-          <div className='tile is-parent'>
-            <MessagesFilter {...this.props} cable={this.cable} />
-          </div>
-          <div className='tile is-vertical is-parent'>
-            {
-              this.state.message &&
-                <MessageEdit cable={this.cable} message={this.state.message} />
-            }
-          </div>
+          { this.messageFilter() }
         </div>
       </div>
     )
