@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import ActionCable from 'actioncable'
 import moment from 'moment'
+import bowser from 'bowser'
 import './App.css'
 
 
@@ -136,8 +137,18 @@ class Message extends Component {
       </div>
     )
     // NOTE: The do-nothing onClick handler make mobile safari hover the div
+    let hoverable = !bowser.mobile && !bowser.tablet
+    let cardClassNames = classNames({card: true, hover: hoverable})
+    let topRightButtonsClassNames = classNames({
+      button: true,
+      'is-small': true,
+      'top-right': true,
+      'hover-appear': hoverable
+    })
+    let topRightButtons = (hoverable || this.props.selected) &&
+        <button className={topRightButtonsClassNames} onClick={() => this.setState({edit:true})}>edit</button>
     return (
-      <div className='card hover' onClick={() => {}}>
+      <div className={cardClassNames} onClick={this.props.select}>
         <div className='card-content break-word'>
           <p>{message.content.split("\n")[0]}</p>
           <ul>
@@ -170,7 +181,7 @@ class Message extends Component {
             }
           </div>
         </div>
-        <button className='button is-small top-right hover-appear' onClick={() => this.setState({edit:true})}>edit</button>
+        { topRightButtons }
         { edit }
       </div>
     )
@@ -260,7 +271,15 @@ class Messages extends Component {
         }
         {
           this.state.messages.map((message) => {
-            return <Message key={message.id} cable={this.props.cable} message={message} noTags={this.state.query.no_tags} addTag={this.addTag} />
+            return <Message
+                       key={message.id}
+                       cable={this.props.cable}
+                       message={message}
+                       noTags={this.state.query.no_tags}
+                       addTag={this.addTag}
+                       selected={this.state.selectedMessageId === message.id}
+                       select={() => this.setState({selectedMessageId: message.id})}
+                       />
           })
         }
       </div>
