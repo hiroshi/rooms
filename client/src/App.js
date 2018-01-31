@@ -79,7 +79,7 @@ class InputButton extends Component {
   }
 }
 
-class MessageEdit extends Component {
+class MessageEditModal extends Component {
   constructor (props) {
     super(props)
     this._subscribe(props)
@@ -101,20 +101,27 @@ class MessageEdit extends Component {
   }
 
   save = () => {
-    // console.log(this.textarea.value)
     this.subscription.perform('update', {id: this.props.message.id, content: this.textarea.value})
+    this.props.close()
   }
 
   render () {
     let message = this.props.message
     return (
-      <div className='box'>
-        <div key={message.id} className='card field'>
-          <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
-          <button className='button is-primary' onClick={this.save}>Save</button>
+      <div className='modal is-active'>
+        <div className='modal-background' onClick={this.props.close}></div>
+        <div className='modal-content'>
+          <div className='box'>
+            <div key={message.id} className='card field'>
+              <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
+              <button className='button is-primary' onClick={this.save}>Save</button>
+            </div>
+            <Messages cable={this.props.cable} params={{room: this.props.message.room_id, q: '/p' + message.id}} />
+          </div>
         </div>
-        <Messages cable={this.props.cable} params={{room: this.props.message.room_id, q: '/p' + message.id}} />
+        <button className='modal-close is-large' aria-label='close' onClick={this.props.close}></button>
       </div>
+
     )
   }
 }
@@ -127,15 +134,8 @@ class Message extends Component {
 
   render () {
     let message = this.props.message
-    let edit = this.state.edit && (
-      <div className='modal is-active'>
-        <div className='modal-background' onClick={() => this.setState({edit:false})}></div>
-        <div className='modal-content'>
-          <MessageEdit cable={this.props.cable} message={this.props.message} />
-        </div>
-        <button className='modal-close is-large' aria-label='close' onClick={() => this.setState({edit:false})}></button>
-      </div>
-    )
+    let edit = this.state.edit &&
+        <MessageEditModal cable={this.props.cable} message={this.props.message} close={() => this.setState({edit:false})} />
     // NOTE: The do-nothing onClick handler make mobile safari hover the div
     let hoverable = !bowser.mobile && !bowser.tablet
     let cardClassNames = classNames({card: true, hover: hoverable})
