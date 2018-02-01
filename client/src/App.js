@@ -105,6 +105,14 @@ class MessageEditModal extends Component {
     this.props.close()
   }
 
+  tag = (tag) => {
+    this.textarea.focus()
+    let value = this.textarea.value + ' #' + (tag || '')
+    this.textarea.value = value
+    let len = value.length
+    this.textarea.setSelectionRange(len, len)
+  }
+
   render () {
     let message = this.props.message
     return (
@@ -116,7 +124,17 @@ class MessageEditModal extends Component {
               <textarea className='textarea' defaultValue={message.content} ref={x => this.textarea = x}></textarea>
               <button className='button is-primary' onClick={this.save}>Save</button>
             </div>
-            <Messages cable={this.props.cable} params={{room: this.props.message.room_id, q: '/p' + message.id}} />
+            <div className='field is-grouped is-grouped-multiline'>
+              <div className='control'>
+                <div className='tags has-addons'>
+                  <span className="tag is-info">#todo</span>
+                  <button className="tag is-delete"></button>
+                </div>
+              </div>
+              <div className='control'>
+                <span className='tag button is-primary' onClick={(e) => this.tag()}>#</span>
+              </div>
+            </div>
           </div>
         </div>
         <button className='modal-close is-large' aria-label='close' onClick={this.props.close}></button>
