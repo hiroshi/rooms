@@ -111,6 +111,16 @@ RSpec.describe Message, type: :model do
         is_expected.to eq([first, second].map(&:id))
       end
     end
+
+    describe 'query("created_at>-12h")' do
+      let!(:first) { Message.create!(room: room, user: user, content: 'first', created_at: 13.hours.ago) }
+      let!(:second) { Message.create!(room: room, user: user, content: 'second') }
+      subject { Message.query('created_at>-12h').map(&:id) }
+
+      it do
+        is_expected.to eq([second].map(&:id))
+      end
+    end
   end
 
   describe 'ancestors' do
