@@ -56,12 +56,24 @@ class Message < ApplicationRecord
   }
 
   def self.parse_query(query)
-    query = "" if query.nil?
-    {
-      tags: query.scan(/(?:\s|^)([^\!\/+-]\S+)/).map(&:first),
-      no_tags: query.scan(/(?:\s|^)\!(\S+)/).map(&:first),
-      parent_ids: query.scan(/(?:\s|^)\/p(\d+)/).map(&:first),
-      orders: query.scan(/(?:\s|^)([+-]\S+)/).map(&:first)
+    r = {
+      tags: [],
+      no_tags: [],
+      parent_ids: [],
+      orders: []
     }
+    (query || '').strip.split(/\s+/).each do |token|
+      case token
+      when /\!(\S+)/
+        r[:no_tags] << $1
+      when /\/p(\d+)/
+        r[:parent_ids] << $1
+      when /([+-]\S+)/
+        r[:orders] << $1
+      when /(\S+)/
+        r[:tags] << $1
+      end
+    end
+    r
   end
 end
