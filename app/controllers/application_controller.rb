@@ -26,10 +26,10 @@ class ApplicationController < ActionController::Base
         if Message.where('meta->\'urls\' @> ?', [item['standardLinks']['replies'][0]['href']].to_json).exists?
           next
         end
-        Message.create!(room_id: 1, user_id: 2, content: <<~CONTENT)
-        #{item['title']} / #{json['title']}
-        #{item['standardLinks'].values.flatten.map{|l|l['href']}.join("\n")}
-        #feed #HackerNews
+        Message.create!(room_id: 1, user_id: 2, meta: {src: item}, content: <<~CONTENT)
+          #{item['title']} / #{json['title']}
+          #{item['standardLinks'].values.flatten.map{|l|l['href']}.join("\n")}
+          #feed #HackerNews
         CONTENT
       end
       ActionCable.server.broadcast('messages', refresh: true)
