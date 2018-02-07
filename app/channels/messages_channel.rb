@@ -19,17 +19,21 @@ class MessagesChannel < ApplicationCable::Channel
   def query(data)
     q = (data['q'] || '').strip
     messages = room.messages.query(q).order(created_at: :desc).limit(10)
-    messages = messages.as_json(
-      only: [:id, :content, :meta, :room_id, :created_at],
-      include: {
-        user: { only: :id, methods: :name },
-        ancestors: { only: :id },
-        descendants: { only: :id }
-      }
-    )
+    messages_json = messages.map {|message|
+      message.as_json(
+        only: [:id, :content, :room_id, :created_at],
+        include: {
+          user: { only: :id, methods: :name },
+          ancestors: { only: :id },
+          descendants: { only: :id }
+        }
+      ).merge(
+        meta: message.meta.slice('tags', 'urls')
+      )
+    }
     ActionCable.server.broadcast(
       @broadcasting,
-      messages: messages,
+      messages: messages_json,
       query: Message.parse_query(q),
       room: room.as_json(only: [:id, :name]),
       count: room.messages.query(q).count
