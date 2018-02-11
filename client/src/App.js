@@ -58,8 +58,8 @@ class InputButton extends Component {
     return (
       <div className='field has-addons'>
         <div className='control is-expanded'>
-          <input
-            type='text'
+          <textarea
+            rows='2'
             autoCapitalize='off'
             autoFocus={this.props.autoFocus}
             value={this.state.value}
@@ -69,7 +69,7 @@ class InputButton extends Component {
             onChange={this.onChange}
             onFocus={() => this.toggleFocus(true)}
             onBlur={() => this.toggleFocus(false)}
-            className='input' />
+            className='textarea' />
         </div>
         <div className='control'>
           <button onClick={this.push} className='button is-primary'>{this.props.buttonText}</button>
