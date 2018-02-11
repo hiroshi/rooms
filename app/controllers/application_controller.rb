@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
     json =  JSON.parse(request.body.read())
     if json['items'].present?
       json['items'].each do |item|
-        if Message.where("meta->'src'->>'id' = ?", item['id']).exists?
+        if Message.where("meta->'src'->>'summary' = ?", item['summary']).exists?
           next
         end
         Message.create!(room_id: 1, user_id: 2, meta: {src: item}, content: <<~CONTENT)
