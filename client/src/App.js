@@ -139,7 +139,6 @@ class MessageEditModal extends Component {
         </div>
         <button className='modal-close is-large' aria-label='close' onClick={this.props.close}></button>
       </div>
-
     )
   }
 }
@@ -150,10 +149,21 @@ class Message extends Component {
     this.state = {}
   }
 
+  toggleEdit = (edit) => {
+    this.setState({edit: edit})
+    if (bowser.ios) {
+      if (edit) {
+        document.body.classList.add('ios-modal-fix')
+      } else {
+        document.body.classList.remove('ios-modal-fix')
+      }
+    }
+  }
+
   render () {
     let message = this.props.message
     let edit = this.state.edit &&
-        <MessageEditModal cable={this.props.cable} message={this.props.message} close={() => this.setState({edit:false})} />
+        <MessageEditModal cable={this.props.cable} message={this.props.message} close={() => this.toggleEdit(false)} />
     // NOTE: The do-nothing onClick handler make mobile safari hover the div
     let hoverable = !bowser.mobile && !bowser.tablet
     let cardClassNames = classNames({card: true, hover: hoverable})
@@ -164,7 +174,7 @@ class Message extends Component {
       'hover-appear': hoverable
     })
     let topRightButtons = (hoverable || this.props.selected) &&
-        <button className={topRightButtonsClassNames} onClick={() => this.setState({edit:true})}>edit</button>
+        <button className={topRightButtonsClassNames} onClick={() => this.toggleEdit(true)}>edit</button>
     return (
       <div className={cardClassNames} onClick={this.props.select}>
         <div className='card-content break-word'>

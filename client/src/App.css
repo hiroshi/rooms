@@ -1,3 +1,8 @@
+body.ios-modal-fix {
+    position: fixed;
+    width: 100%;
+}
+
 .card:hover {
     background-color: whitesmoke;
     color: #363636;
