@@ -143,10 +143,51 @@ class MessageEditModal extends Component {
   }
 }
 
+// https://reactjs.org/docs/higher-order-components.html
+function openMessageEditModal(cable, message, renderTrigger) {
+  return class extends React.Component {
+    constructor (props) {
+      super(props)
+      this.state = {}
+    }
+
+    toggle = (show) => {
+      this.setState({show: show})
+      if (bowser.ios) {
+        if (show) {
+          document.body.classList.add('ios-modal-fix')
+        } else {
+          document.body.classList.remove('ios-modal-fix')
+        }
+      }
+    }
+
+    render () {
+      let modal = this.state.show && (
+        <MessageEditModal key='modal' cable={cable} message={message} close={() => this.toggle(false)} />
+      )
+      return [
+        renderTrigger(() => this.toggle(true)),
+        modal
+      ]
+    }
+  }
+}
+
 class Message extends Component {
   constructor (props) {
     super(props)
     this.state = {}
+    this.hoverable = !bowser.mobile && !bowser.tablet
+    let topRightButtonsClassNames = classNames({
+      button: true,
+      'is-small': true,
+      'top-right': true,
+      'hover-appear': this.hoverable
+    })
+    this.TopRightButtons = openMessageEditModal(props.cable, props.message, (showModal) => (
+      <button key='trigger' className={topRightButtonsClassNames} onClick={showModal}>edit</button>
+    ))
   }
 
   toggleEdit = (edit) => {
@@ -162,19 +203,9 @@ class Message extends Component {
 
   render () {
     let message = this.props.message
-    let edit = this.state.edit &&
-        <MessageEditModal cable={this.props.cable} message={this.props.message} close={() => this.toggleEdit(false)} />
     // NOTE: The do-nothing onClick handler make mobile safari hover the div
-    let hoverable = !bowser.mobile && !bowser.tablet
-    let cardClassNames = classNames({card: true, hover: hoverable})
-    let topRightButtonsClassNames = classNames({
-      button: true,
-      'is-small': true,
-      'top-right': true,
-      'hover-appear': hoverable
-    })
-    let topRightButtons = (hoverable || this.props.selected) &&
-        <button className={topRightButtonsClassNames} onClick={() => this.toggleEdit(true)}>edit</button>
+    let cardClassNames = classNames({card: true, hover: this.hoverable})
+    let topRightButtons = (this.hoverable || this.props.selected) && <this.TopRightButtons />
     return (
       <div className={cardClassNames} onClick={this.props.select}>
         <div className='card-content break-word'>
@@ -210,7 +241,6 @@ class Message extends Component {
           </div>
         </div>
         { topRightButtons }
-        { edit }
       </div>
     )
   }
