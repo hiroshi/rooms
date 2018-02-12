@@ -96,7 +96,7 @@ class MessageEditModal extends Component {
 
   _subscribe (props) {
     this.subscription = props.cable.subscriptions.create(
-      {channel: 'MessageChannel', id: props.message.id}
+      {channel: 'MessageChannel', id: props.message.id, room: props.message.room_id}
     )
   }
 
@@ -144,7 +144,7 @@ class MessageEditModal extends Component {
 }
 
 // https://reactjs.org/docs/higher-order-components.html
-function openMessageEditModal(cable, message, renderTrigger) {
+function openMessageEditModal(cable, renderTrigger) {
   return class extends React.Component {
     constructor (props) {
       super(props)
@@ -164,7 +164,7 @@ function openMessageEditModal(cable, message, renderTrigger) {
 
     render () {
       let modal = this.state.show && (
-        <MessageEditModal key='modal' cable={cable} message={message} close={() => this.toggle(false)} />
+        <MessageEditModal key='modal' cable={cable} message={this.props.message} close={() => this.toggle(false)} />
       )
       return [
         renderTrigger(() => this.toggle(true)),
@@ -185,7 +185,7 @@ class Message extends Component {
       'top-right': true,
       'hover-appear': this.hoverable
     })
-    this.TopRightButtons = openMessageEditModal(props.cable, props.message, (showModal) => (
+    this.TopRightButtons = openMessageEditModal(props.cable, (showModal) => (
       <button key='trigger' className={topRightButtonsClassNames} onClick={showModal}>edit</button>
     ))
   }
@@ -205,7 +205,8 @@ class Message extends Component {
     let message = this.props.message
     // NOTE: The do-nothing onClick handler make mobile safari hover the div
     let cardClassNames = classNames({card: true, hover: this.hoverable})
-    let topRightButtons = (this.hoverable || this.props.selected) && <this.TopRightButtons />
+    let topRightButtons = (this.hoverable || this.props.selected) &&
+        <this.TopRightButtons message={this.props.message} />
     return (
       <div className={cardClassNames} onClick={this.props.select}>
         <div className='card-content break-word'>
@@ -251,6 +252,9 @@ class Messages extends Component {
     super(props)
     this.state = {messages: []}
     this._subscribe(props)
+    this.NewMessageButton = openMessageEditModal(props.cable, (showModal) => (
+      <span key="button" className="tag button is-primary" onClick={showModal}>new message</span>
+    ))
   }
 
   componentWillReceiveProps (nextProps) {
@@ -298,16 +302,20 @@ class Messages extends Component {
     this.subscription.perform('add_tag', {id: id, tag: tag})
   }
 
-  openNewMessage = () => {
-    this.setState({newMessage: true})
-  }
+  // openNewMessage = () => {
+  //   this.setState({newMessage: true})
+  // }
 
-  push = (value) => {
-    this.subscription.perform('create', {content: value, parent_id: this.state.query.parent_ids[0]})
-    this.setState({newMessage: false})
-  }
+  // push = (value) => {
+  //   this.subscription.perform('create', {content: value, parent_id: this.state.query.parent_ids[0]})
+  //   this.setState({newMessage: false})
+  // }
 
   render () {
+    let newMessage = {
+      content: this.state.query && "\n" + this.state.query.tags.map((t) => " #" + t).join(''),
+      room_id: this.state.room && this.state.room.id
+    }
     return (
       <div>
         <div className='field is-grouped is-grouped-multiline'>
@@ -317,16 +325,8 @@ class Messages extends Component {
               <span className="tag is-info">{this.state.count}</span>
             </div>
           </div>
-          {
-            this.state.newMessage
-              ? <span className="tag button is-warning" onClick={() => this.setState({newMessage: false})}>cancel new message</span>
-              : <span className="tag button is-primary" onClick={this.openNewMessage}>new message</span>
-          }
+          <this.NewMessageButton message={newMessage} />
         </div>
-        {
-          this.state.newMessage &&
-            <InputButton buttonText='new' action={this.push} clearAfterAction={true} autoFocus={true} value={this.state.query.tags.map((t) => " #" + t).join('')} />
-        }
         {
           this.state.messages.map((message) => {
             return <Message
@@ -397,7 +397,6 @@ class MessagesFilter extends Component {
   }
 
   onQuery = (info) => {
-    // console.log(info)
     this.setState({room: info.room})
   }
 

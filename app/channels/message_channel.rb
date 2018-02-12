@@ -4,7 +4,11 @@ class MessageChannel < ApplicationCable::Channel
       reject
       return
     end
-    stream_for message
+    if message.id
+      stream_for message
+    else
+      stream_from 'new message'
+    end
   end
 
   def update(data)
@@ -12,10 +16,10 @@ class MessageChannel < ApplicationCable::Channel
     ActionCable.server.broadcast('messages', refresh: true)
   end
 
-  def create(data)
-    current_user.messages.create!(content: data['content'], room_id: data['room_id'])
-    ActionCable.server.broadcast('messages', refresh: true)
-  end
+  # def create(data)
+  #   current_user.messages.create!(content: data['content'], room_id: data['room_id'])
+  #   ActionCable.server.broadcast('messages', refresh: true)
+  # end
 
   private
 
@@ -24,6 +28,10 @@ class MessageChannel < ApplicationCable::Channel
   end
 
   def message
-    Message.find_by(id: params[:id])
+    if params[:id]
+      Message.find_by(id: params[:id])
+    else
+      Message.new(room_id: params[:room], user: current_user)
+    end
   end
 end

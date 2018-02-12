@@ -58,16 +58,16 @@ class MessagesChannel < ApplicationCable::Channel
   end
 
   # data: { content:, parent_id: }
-  def create(data)
-    ActiveRecord::Base.transaction do
-      message = room.messages.create!(content: data['content'], user: current_user)
-      if data['parent_id']
-        parent = room.messages.find_by(id: data['parent_id'])
-        parent.descendant_relationships.create!(child: message, order: 0)
-      end
-    end
-    ActionCable.server.broadcast('messages', refresh: true)
-  end
+  # def create(data)
+  #   ActiveRecord::Base.transaction do
+  #     message = room.messages.create!(content: data['content'], user: current_user)
+  #     if data['parent_id']
+  #       parent = room.messages.find_by(id: data['parent_id'])
+  #       parent.descendant_relationships.create!(child: message, order: 0)
+  #     end
+  #   end
+  #   ActionCable.server.broadcast('messages', refresh: true)
+  # end
 
   private
 
