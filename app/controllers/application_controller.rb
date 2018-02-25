@@ -1,5 +1,7 @@
 class ApplicationController < ActionController::Base
   def health
+    request.headers.sort.map { |k, v| logger.info "#{k}:#{v}" }
+    pp request.body.read
     render plain: 'ok'
   end
 
