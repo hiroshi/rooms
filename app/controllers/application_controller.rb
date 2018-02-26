@@ -1,7 +1,5 @@
 class ApplicationController < ActionController::Base
   def health
-    request.headers.sort.map { |k, v| logger.info "#{k}:#{v}" }
-    pp request.body.read
     render plain: 'ok'
   end
 
@@ -36,6 +34,11 @@ class ApplicationController < ActionController::Base
       end
       ActionCable.server.broadcast('messages', refresh: true)
     end
-    head :ok
+    head :created
+  end
+
+  def post_message
+    Message.create!(room_id: 1, user_id: 2, content: params[:content])
+    head :created
   end
 end
