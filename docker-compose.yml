@@ -13,6 +13,8 @@ services:
     - ./:/app
     tmpfs:
     - /app/tmp/pids
+    depends_on:
+    - postgres
   client:
     build: ./client
     command: sh -c "yarn && yarn run start"
