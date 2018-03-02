@@ -36,6 +36,7 @@ class InputButton extends Component {
   handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       this.push()
+      this.input.blur()
     }
   }
 
