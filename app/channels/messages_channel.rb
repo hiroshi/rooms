@@ -40,12 +40,12 @@ class MessagesChannel < ApplicationCable::Channel
     )
     # save query history
     if data['save']
-      query_tag = 'q=' + q.gsub(/\s+/,'+')
-      query_message = room.messages.tags('query', query_tag).first || room.messages.build
-      query_message.update!(content: <<~CONTENT, user: current_user)
+      content = <<~CONTENT
         #{q}
-        #query ##{query_tag}
+        #query
       CONTENT
+      query_message = room.messages.where(content: content).first || room.messages.build
+      query_message.update!(content: content, user: current_user)
     end
   end
 

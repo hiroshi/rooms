@@ -17,8 +17,11 @@ class QueryHistoriesChannel < ApplicationCable::Channel
   # data: { q: }
   def histories(data)
     q = (data['q'] || '').strip
-    query_tag = 'q=' + q.gsub(/\s+/,'+')
-    messages = room.messages.tags('query').no_tags(query_tag).order(updated_at: :desc).limit(20)
+    content = <<~CONTENT
+      #{q}
+      #query
+    CONTENT
+    messages = room.messages.tags('query').where.not(content: content).order(updated_at: :desc).limit(20)
     messages = messages.as_json(
       only: :id,
       methods: :first_line,
