@@ -414,7 +414,7 @@ class MessagesFilter extends Component {
       urlParams.set('q', q)
       return (
         <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item" title={q}>
-          <div className="level">
+          <div className="level is-mobile">
             <div className="level-left">
               {message.first_line}
             </div>
