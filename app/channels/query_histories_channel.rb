@@ -25,7 +25,9 @@ class QueryHistoriesChannel < ApplicationCable::Channel
     messages = messages.as_json(
       only: :id,
       methods: :first_line,
-    )
+    ).each do |m|
+      m[:count] = room.messages.query(m['first_line']).count
+    end
     ActionCable.server.broadcast(
       @broadcasting,
       histories: messages

@@ -413,8 +413,17 @@ class MessagesFilter extends Component {
       let urlParams = new URLSearchParams(this.props.location.search)
       urlParams.set('q', q)
       return (
-        <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item">
-          {message.first_line}&nbsp;
+        <a key={message.id} href={'?' + urlParams.toString()} onClick={(e) => {e.preventDefault(); this.query(q)}} className="dropdown-item" title={q}>
+          <div className="level">
+            <div className="level-left">
+              {message.first_line}
+            </div>
+            <div className="level-right">
+              <span className="tag is-light">
+                {message.count}
+              </span>
+            </div>
+          </div>
         </a>
       )
     })
