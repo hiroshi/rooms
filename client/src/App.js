@@ -501,7 +501,10 @@ class Rooms extends Component {
          </div>
       )
     } else {
-      return <a className='button' href='/auth/github'>login</a>
+      return [
+        <a className='button' href='/auth/github'>Github login</a>,
+        <a className='button' href='/auth/google_oauth2'>Google login</a>
+      ]
     }
   }
 

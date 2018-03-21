@@ -8,6 +8,8 @@ services:
     environment:
     - GITHUB_KEY
     - GITHUB_SECRET
+    - GOOGLE_CLIENT_ID
+    - GOOGLE_CLIENT_SECRET
     volumes:
     - bundle:/usr/local/bundle
     - ./:/app
