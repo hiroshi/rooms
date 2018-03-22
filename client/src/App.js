@@ -214,8 +214,8 @@ class Message extends Component {
           <p>{message.content.split("\n")[0]}</p>
           <ul>
             {
-              message.meta.urls && message.meta.urls.map((url) => {
-                return <li key={url}><a target='_blank' href={url}>{url}</a></li>
+              message.meta.urls && message.meta.urls.map((url, index) => {
+                return <li key={index}><a target='_blank' href={url}>{url}</a></li>
               })
             }
           </ul>
@@ -502,8 +502,8 @@ class Rooms extends Component {
       )
     } else {
       return [
-        <a className='button' href='/auth/github'>Github login</a>,
-        <a className='button' href='/auth/google_oauth2'>Google login</a>
+        <a key='github' className='button' href='/auth/github'>Github login</a>,
+        <a key='google' className='button' href='/auth/google_oauth2'>Google login</a>
       ]
     }
   }
